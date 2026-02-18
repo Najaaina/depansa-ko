@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { Hello } from './pages/Hello';
+import  Hello  from './pages/Hello';
 
 export default function Index() {
   return (
