@@ -35,3 +35,4 @@
   > [NOTE]
   > Remember to do a fetch and a pull to stay on the latest version
   > Don't commit too much
+  > first launch of the app a little heavy, it is a TODO

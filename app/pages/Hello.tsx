@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-export function Hello() {
+export default function Hello() {
   return (
     <View className="flex-1 items-center justify-center bg-black">
       <Card className="w-full max-w-sm">
