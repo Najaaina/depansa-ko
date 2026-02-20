@@ -1,38 +1,73 @@
-# Depansa++
+# Minimal Template
 
-> **This is not your everyday expense tracking app**, made by crazy dudes
+This is a [React Native](https://reactnative.dev/) project built with [Expo](https://expo.dev/) and [React Native Reusables](https://reactnativereusables.com).
 
-> Still in development
+It was initialized using the following command:
 
-- **BASE STACK**
-  - expo
-  - nativewind
-  - nativewind reusable
+```bash
+npx @react-native-reusables/cli@latest init -t depansa
+```
 
-## Development structure
+## Getting Started
 
-- branches
-  - **main** : release branch ( do not make changes in it )
-  - **development** : development branch
-  - **feature** :
-    - template : feature/feature-name
-    - the feature branch is to merged into the development and deleted after the
-      feature is done
+To run the development server:
 
-- flow :
-  - main is the app branch
-  - development is a checkout of main, development is done in it
-    - code in development should be working code
-    - **Radiant_wizard** is doing the merge of this branch into main
-  - feature :
-    - feature branches are branches created with development as origin
-    - should be merged in development and deleted after the feature development
-  - fix :
-    - template : fix/fix-little-description
-    - fix is a branch with main as its origin for it should be
-      app fixes
+```bash
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    # or
+    bun dev
+```
 
-  > [NOTE]
-  > Remember to do a fetch and a pull to stay on the latest version
-  > Don't commit too much
-  > first launch of the app a little heavy, it is a TODO
+This will start the Expo Dev Server. Open the app in:
+
+- **iOS**: press `i` to launch in the iOS simulator _(Mac only)_
+- **Android**: press `a` to launch in the Android emulator
+- **Web**: press `w` to run in a browser
+
+You can also scan the QR code using the [Expo Go](https://expo.dev/go) app on your device. This project fully supports running in Expo Go for quick testing on physical devices.
+
+## Adding components
+
+You can add more reusable components using the CLI:
+
+```bash
+npx react-native-reusables/cli@latest add [...components]
+```
+
+> e.g. `npx react-native-reusables/cli@latest add input textarea`
+
+If you don't specify any component names, you'll be prompted to select which components to add interactively. Use the `--all` flag to install all available components at once.
+
+## Project Features
+
+- ⚛️ Built with [Expo Router](https://expo.dev/router)
+- 🎨 Styled with [Tailwind CSS](https://tailwindcss.com/) via [Nativewind](https://www.nativewind.dev/)
+- 📦 UI powered by [React Native Reusables](https://github.com/founded-labs/react-native-reusables)
+- 🚀 New Architecture enabled
+- 🔥 Edge to Edge enabled
+- 📱 Runs on iOS, Android, and Web
+
+## Learn More
+
+To dive deeper into the technologies used:
+
+- [React Native Docs](https://reactnative.dev/docs/getting-started)
+- [Expo Docs](https://docs.expo.dev/)
+- [Nativewind Docs](https://www.nativewind.dev/)
+- [React Native Reusables](https://reactnativereusables.com)
+
+## Deploy with EAS
+
+The easiest way to deploy your app is with [Expo Application Services (EAS)](https://expo.dev/eas).
+
+- [EAS Build](https://docs.expo.dev/build/introduction/)
+- [EAS Updates](https://docs.expo.dev/eas-update/introduction/)
+- [EAS Submit](https://docs.expo.dev/submit/introduction/)
+
+---
+
+If you enjoy using React Native Reusables, please consider giving it a ⭐ on [GitHub](https://github.com/founded-labs/react-native-reusables). Your support means a lot!
