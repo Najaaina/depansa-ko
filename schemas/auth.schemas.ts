@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Login schema
+// Login schemas
 export const loginSchema = z.object({
   username: z
     .string()
@@ -14,7 +14,7 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-// Register schema
+// Register schemas
 export const registerSchema = z
   .object({
     username: z

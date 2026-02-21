@@ -31,7 +31,7 @@ export const useFormValidation = <T extends Record<string, any>>({
   const validateField = useCallback(
     (name: string, value: string): string | null => {
       try {
-        // Get the shape of the schema to validate individual fields
+        // Get the shape of the schemas to validate individual fields
         const schemaShape = (schema as any)._def.shape?.();
 
         if (!schemaShape || !schemaShape[name]) {
