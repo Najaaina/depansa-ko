@@ -67,9 +67,9 @@ export default function LoginScreen() {
         contentContainerClassName="flex-grow justify-center p-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="items-center mb-10">
-          <Text className="text-4xl font-bold text-gray-800 mb-2">
-            Welcome Back
+        <View className="flex items-start mb-10 text-left">
+          <Text className="w-full text-6xl font-bold text-gray-800">
+            Welcome Back!
           </Text>
           <Text className="text-base text-gray-500">
             Sign in to continue to track your Depansa
