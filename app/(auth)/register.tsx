@@ -70,7 +70,7 @@ export default function RegisterScreen() {
         contentContainerClassName="flex-grow justify-center p-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="items-center mb-10">
+        <View className="mb-10">
           <Text className="text-4xl font-bold text-gray-800 mb-2">
             Create Account
           </Text>

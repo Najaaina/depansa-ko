@@ -1,3 +1,4 @@
+// hooks/useFormValidation.ts
 import { useState, useCallback } from "react";
 import { z, ZodType } from "zod";
 
@@ -28,29 +29,42 @@ export const useFormValidation = <T extends Record<string, any>>({
     return initial;
   });
 
+  /**
+   * Valide un champ individuel en parsant le schema entier avec
+   * les valeurs courantes + la nouvelle valeur du champ modifié.
+   * Cela permet aux refine() cross-fields (ex: password === confirmPassword)
+   * de fonctionner correctement lors de la validation à la volée.
+   */
   const validateField = useCallback(
     (name: string, value: string): string | null => {
+      // Construire les valeurs courantes en remplaçant le champ modifié
+      const currentValues: Record<string, any> = {};
+      Object.keys(fields).forEach((key) => {
+        currentValues[key] = key === name ? value : fields[key].value;
+      });
+
       try {
-        // Get the shape of the schemas to validate individual fields
-        const schemaShape = (schema as any)._def.shape?.();
-
-        if (!schemaShape || !schemaShape[name]) {
-          return null;
-        }
-
-        // Validate the individual field
-        schemaShape[name].parse(value);
+        schema.parse(currentValues);
         return null;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          return error.issues[0]?.message || "Invalid value";
+          // On cherche uniquement l'erreur appartenant au champ concerné
+          const fieldError = error.issues.find(
+            (issue) => issue.path[0] === name
+          );
+          return fieldError?.message || null;
         }
         return "Validation error";
       }
     },
-    [schema],
+    [schema, fields]
   );
 
+  /**
+   * Met à jour la valeur d'un champ et valide immédiatement.
+   * L'erreur n'est visible que si le champ a déjà été touché (touched),
+   * pour ne pas afficher des erreurs avant que l'utilisateur ait interagi.
+   */
   const setFieldValue = useCallback(
     (name: string, value: string) => {
       const error = validateField(name, value);
@@ -58,27 +72,38 @@ export const useFormValidation = <T extends Record<string, any>>({
         ...prev,
         [name]: {
           value,
-          error,
+          // On n'affiche l'erreur que si le champ a déjà été touché
+          error: prev[name]?.touched ? error : null,
           touched: prev[name]?.touched || false,
         },
       }));
     },
-    [validateField],
+    [validateField]
   );
 
-  const setFieldTouched = useCallback((name: string) => {
-    setFields((prev) => {
-      if (!prev[name]) return prev;
+  /**
+   * Marque un champ comme touché (au onBlur) et déclenche sa validation.
+   * C'est à ce moment que les erreurs deviennent visibles pour la première fois.
+   */
+  const setFieldTouched = useCallback(
+    (name: string) => {
+      setFields((prev) => {
+        if (!prev[name]) return prev;
 
-      return {
-        ...prev,
-        [name]: {
-          ...prev[name],
-          touched: true,
-        },
-      };
-    });
-  }, []);
+        const error = validateField(name, prev[name].value);
+
+        return {
+          ...prev,
+          [name]: {
+            ...prev[name],
+            touched: true,
+            error,
+          },
+        };
+      });
+    },
+    [validateField]
+  );
 
   const setFieldError = useCallback((name: string, error: string | null) => {
     setFields((prev) => ({
@@ -102,6 +127,10 @@ export const useFormValidation = <T extends Record<string, any>>({
     setFields(resetState);
   }, [initialValues]);
 
+  /**
+   * Valide tous les champs d'un coup (appelé au submit).
+   * Marque tous les champs comme touched et affiche toutes les erreurs.
+   */
   const validateForm = useCallback((): boolean => {
     const values: Record<string, any> = {};
     Object.keys(fields).forEach((key) => {
@@ -113,27 +142,52 @@ export const useFormValidation = <T extends Record<string, any>>({
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        // Update all field errors
         const newFields = { ...fields };
+
+        // D'abord, on marque tous les champs comme touched
+        Object.keys(newFields).forEach((key) => {
+          newFields[key] = {
+            ...newFields[key],
+            touched: true,
+            error: null, // reset avant de repeupler
+          };
+        });
+
+        // Ensuite, on applique les erreurs retournées par Zod
         error.issues.forEach((issue) => {
           const fieldName = issue.path[0] as string;
-          if (newFields[fieldName]) {
+          if (newFields[fieldName] && !newFields[fieldName].error) {
+            // On ne garde que la première erreur par champ
             newFields[fieldName] = {
               ...newFields[fieldName],
               error: issue.message,
-              touched: true,
             };
           }
         });
+
         setFields(newFields);
       }
       return false;
     }
   }, [fields, schema]);
 
+  /**
+   * Vérifie si le formulaire est valide sans modifier l'état.
+   * Utilisé pour activer/désactiver le bouton de submit.
+   */
   const isFormValid = useCallback((): boolean => {
-    return Object.values(fields).every((field) => !field.error && field.value);
-  }, [fields]);
+    const values: Record<string, any> = {};
+    Object.keys(fields).forEach((key) => {
+      values[key] = fields[key].value;
+    });
+
+    try {
+      schema.parse(values);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [fields, schema]);
 
   const getValues = useCallback((): Partial<T> => {
     const values: Record<string, any> = {};
