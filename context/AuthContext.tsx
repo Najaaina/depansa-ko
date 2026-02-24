@@ -42,6 +42,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const userData = await storageService.getUserData();
       setUser(userData);
+      if (userData) {
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
     } catch (error) {
       console.error("Error checking auth status:", error);
     } finally {
@@ -58,7 +63,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setUser({
         id: userData.id,
         username: userData.username,
-        email: userData.email,
       });
     } catch (err) {
       const apiError = err as ApiError;
@@ -78,7 +82,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setUser({
         id: response.id,
         username: response.username,
-        email: response.email,
       });
     } catch (err) {
       const apiError = err as ApiError;

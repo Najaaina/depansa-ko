@@ -1,11 +1,25 @@
+import { string } from "zod";
+
 export interface User {
   id: string;
   username: string;
-  email: string;
 }
 
 export interface UserWithApiKey extends User {
   apiKey: string;
+}
+
+export interface AuthResponse {
+  account: {
+    id: string;
+    username: string;
+  };
+  token: string;
+}
+
+export interface RegisterResponse {
+  id: string;
+  username: string;
 }
 
 export interface LoginRequest {
@@ -15,7 +29,6 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   username: string;
-  email: string;
   password: string;
 }
 

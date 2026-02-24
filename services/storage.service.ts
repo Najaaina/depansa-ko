@@ -9,13 +9,12 @@ const STORAGE_KEYS = {
 export class StorageService {
   async saveUserSession(userData: UserWithApiKey): Promise<void> {
     try {
-      await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, userData.apiKey);
+      await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, String(userData.apiKey));
       await SecureStore.setItemAsync(
         STORAGE_KEYS.USER_DATA,
         JSON.stringify({
           id: userData.id,
-          username: userData.username,
-          email: userData.email,
+          username: userData.username
         }),
       );
     } catch (error) {

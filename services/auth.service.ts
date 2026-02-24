@@ -4,6 +4,8 @@ import type {
   RegisterRequest,
   UserWithApiKey,
   ApiError,
+  AuthResponse,
+  RegisterResponse,
 } from "@/types/api.types";
 
 class AuthService {
@@ -40,18 +42,34 @@ class AuthService {
     }
   }
 
+  private mapAuthResponse(data: AuthResponse): UserWithApiKey {
+    return {
+      id: data.account.id,
+      username: data.account.username,
+      apiKey: data.token,
+    };
+  }
+
+  private mapRegisterResponse(data: RegisterResponse): UserWithApiKey {
+    return {
+      id: data.id,
+      username: data.username,
+    };
+  }
   async login(credentials: LoginRequest): Promise<UserWithApiKey> {
-    return this.fetchApi<UserWithApiKey>(API_ENDPOINTS.LOGIN, {
+    const data = await this.fetchApi<AuthResponse>(API_ENDPOINTS.LOGIN, {
       method: "POST",
       body: JSON.stringify(credentials),
     });
+    return this.mapAuthResponse(data);
   }
 
   async register(userData: RegisterRequest): Promise<UserWithApiKey> {
-    return this.fetchApi<UserWithApiKey>(API_ENDPOINTS.REGISTER, {
+    const data = await this.fetchApi<RegisterResponse>(API_ENDPOINTS.REGISTER, {
       method: "POST",
       body: JSON.stringify(userData),
     });
+    return this.mapRegisterResponse(data);
   }
 }
 
