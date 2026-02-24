@@ -50,7 +50,7 @@ class AuthService {
     };
   }
 
-  private mapRegisterResponse(data: RegisterResponse): UserWithApiKey {
+  private mapRegisterResponse(data: RegisterResponse) {
     return {
       id: data.id,
       username: data.username,
