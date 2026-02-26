@@ -6,6 +6,7 @@ import type {
   ApiError,
   AuthResponse,
   RegisterResponse,
+  RegisterResult,
 } from "@/types/api.types";
 
 class AuthService {
@@ -54,7 +55,6 @@ class AuthService {
     return {
       id: data.id,
       username: data.username,
-      apiKey: "",
     };
   }
   async login(credentials: LoginRequest): Promise<UserWithApiKey> {
@@ -65,7 +65,7 @@ class AuthService {
     return this.mapAuthResponse(data);
   }
 
-  async register(userData: RegisterRequest): Promise<UserWithApiKey> {
+  async register(userData: RegisterRequest): Promise<RegisterResult> {
     const data = await this.fetchApi<RegisterResponse>(API_ENDPOINTS.REGISTER, {
       method: "POST",
       body: JSON.stringify(userData),

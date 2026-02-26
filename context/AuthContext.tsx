@@ -77,12 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       setError(null);
       setIsLoading(true);
-      const response = await authService.register(userData);
-      await storageService.saveUserSession(response);
-      setUser({
-        id: response.id,
-        username: response.username,
-      });
+      await authService.register(userData);
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || "Registration failed");
