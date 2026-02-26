@@ -4,11 +4,11 @@ import { z } from "zod";
 export const loginSchema = z.object({
   username: z
     .string()
-    .min(3, "Username must be at least 3 characters")
+    .min(4, "Username must be at least 4 characters")
     .max(20, "Username must not exceed 20 characters"),
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters")
+    .min(8, "Password must be at least 8 characters")
     .max(100, "Password is too long"),
 });
 
@@ -19,7 +19,7 @@ export const registerSchema = z
   .object({
     username: z
       .string()
-      .min(3, "Username must be at least 3 characters")
+      .min(4, "Username must be at least 4 characters")
       .max(20, "Username must not exceed 20 characters")
       .regex(/^[a-zA-Z0-9_-]+$/, {
         message:
@@ -30,7 +30,7 @@ export const registerSchema = z
       .min(1, "Email is required"),
     password: z
       .string()
-      .min(6, "Password must be at least 6 characters")
+      .min(8, "Password must be at least 8 characters")
       .max(100, "Password is too long")
       .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
         message:
