@@ -54,6 +54,7 @@ class AuthService {
     return {
       id: data.id,
       username: data.username,
+      apiKey: "",
     };
   }
   async login(credentials: LoginRequest): Promise<UserWithApiKey> {

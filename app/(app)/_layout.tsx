@@ -9,6 +9,15 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen
+        name="wallet/create"
+        options={{
+          headerShown: true,
+          headerTitle: "Create Wallet",
+          headerBackTitle: "Back",
+          presentation: "modal",
+        }}
+      />
     </Stack>
   );
 }
