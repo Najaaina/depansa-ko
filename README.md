@@ -1,73 +1,72 @@
-# Minimal Template
+# Depansa++
 
-This is a [React Native](https://reactnative.dev/) project built with [Expo](https://expo.dev/) and [React Native Reusables](https://reactnativereusables.com).
+Personal finance management mobile application built with React Native and Expo.
 
-It was initialized using the following command:
+## Prerequisites
 
-```bash
-npx @react-native-reusables/cli@latest init -t depansa
+- Node.js 18+
+- npm or yarn
+- Backend server running (see depansa++.backend)
+
+## Setup
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` and set `EXPO_PUBLIC_API_URL` to your backend URL (e.g., `http://localhost:8080`)
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Run on device/simulator**
+   - iOS: Press `i`
+   - Android: Press `a`
+   - Web: Press `w`
+
+## Project Structure
+
+```
+app/                    # Expo Router pages
+├── (auth)/            # Authentication screens (login, register)
+├── (app)/             # Protected app screens
+│   └── wallet/        # Wallet management screens
+components/ui/          # Reusable UI components
+context/               # React Context providers
+hooks/                 # Custom React hooks
+schemas/               # Zod validation schemas
+services/              # API services
+types/                 # TypeScript interfaces
 ```
 
-## Getting Started
+## Features
 
-To run the development server:
+- User authentication (login/register)
+- Wallet management (CRUD)
+- Transaction tracking
+- Categories/Labels management
+- Financial goals
 
-```bash
-    npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
-    # or
-    bun dev
-```
+## Tech Stack
 
-This will start the Expo Dev Server. Open the app in:
+- React Native with Expo SDK 54
+- Expo Router v6
+- React Native Reusables (UI components)
+- NativeWind (Tailwind CSS)
+- Zod (validation)
+- expo-secure-store (secure storage)
 
-- **iOS**: press `i` to launch in the iOS simulator _(Mac only)_
-- **Android**: press `a` to launch in the Android emulator
-- **Web**: press `w` to run in a browser
-
-You can also scan the QR code using the [Expo Go](https://expo.dev/go) app on your device. This project fully supports running in Expo Go for quick testing on physical devices.
-
-## Adding components
-
-You can add more reusable components using the CLI:
+## Adding UI Components
 
 ```bash
-npx react-native-reusables/cli@latest add [...components]
+npx react-native-reusables/cli@latest add [component]
 ```
 
-> e.g. `npx react-native-reusables/cli@latest add input textarea`
-
-If you don't specify any component names, you'll be prompted to select which components to add interactively. Use the `--all` flag to install all available components at once.
-
-## Project Features
-
-- ⚛️ Built with [Expo Router](https://expo.dev/router)
-- 🎨 Styled with [Tailwind CSS](https://tailwindcss.com/) via [Nativewind](https://www.nativewind.dev/)
-- 📦 UI powered by [React Native Reusables](https://github.com/founded-labs/react-native-reusables)
-- 🚀 New Architecture enabled
-- 🔥 Edge to Edge enabled
-- 📱 Runs on iOS, Android, and Web
-
-## Learn More
-
-To dive deeper into the technologies used:
-
-- [React Native Docs](https://reactnative.dev/docs/getting-started)
-- [Expo Docs](https://docs.expo.dev/)
-- [Nativewind Docs](https://www.nativewind.dev/)
-- [React Native Reusables](https://reactnativereusables.com)
-
-## Deploy with EAS
-
-The easiest way to deploy your app is with [Expo Application Services (EAS)](https://expo.dev/eas).
-
-- [EAS Build](https://docs.expo.dev/build/introduction/)
-- [EAS Updates](https://docs.expo.dev/eas-update/introduction/)
-- [EAS Submit](https://docs.expo.dev/submit/introduction/)
-
----
-
-If you enjoy using React Native Reusables, please consider giving it a ⭐ on [GitHub](https://github.com/founded-labs/react-native-reusables). Your support means a lot!
+Example: `npx react-native-reusables/cli@latest add input textarea`
