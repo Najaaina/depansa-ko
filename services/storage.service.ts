@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 import type { UserWithApiKey } from "@/types/api.types";
 
 const STORAGE_KEYS = {
@@ -6,8 +7,18 @@ const STORAGE_KEYS = {
   USER_DATA: "user_data",
 } as const;
 
+const isSecureStoreAvailable = (): boolean => {
+  return Platform.OS !== "web" && 
+         SecureStore && 
+         typeof SecureStore.getItemAsync === "function";
+};
+
 export class StorageService {
   async saveUserSession(userData: UserWithApiKey): Promise<void> {
+    if (!isSecureStoreAvailable()) {
+      console.warn("SecureStore not available on this platform");
+      return;
+    }
     try {
       await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, String(userData.apiKey));
       await SecureStore.setItemAsync(
@@ -24,6 +35,9 @@ export class StorageService {
   }
 
   async getApiKey(): Promise<string | null> {
+    if (!isSecureStoreAvailable()) {
+      return null;
+    }
     try {
       return await SecureStore.getItemAsync(STORAGE_KEYS.API_KEY);
     } catch (error) {
@@ -33,6 +47,9 @@ export class StorageService {
   }
 
   async getUserData(): Promise<Omit<UserWithApiKey, "apiKey"> | null> {
+    if (!isSecureStoreAvailable()) {
+      return null;
+    }
     try {
       const userData = await SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA);
       return userData ? JSON.parse(userData) : null;
@@ -43,6 +60,9 @@ export class StorageService {
   }
 
   async clearSession(): Promise<void> {
+    if (!isSecureStoreAvailable()) {
+      return;
+    }
     try {
       await SecureStore.deleteItemAsync(STORAGE_KEYS.API_KEY);
       await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA);

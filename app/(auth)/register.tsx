@@ -55,6 +55,11 @@ export default function RegisterScreen() {
         username: values.username || "",
         password: values.password || "",
       });
+      Alert.alert(
+        "Registration Successful",
+        "Your account has been created. Please log in.",
+        [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
+      );
     } catch (err) {
       // Error is handled in the AuthContext and displayed via Alert
     }

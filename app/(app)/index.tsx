@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
+import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
@@ -26,12 +27,6 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View className="flex-row justify-between py-3 border-b border-gray-200">
-            <Text className="text-sm font-semibold text-gray-500">Email:</Text>
-            <Text className="text-sm text-gray-800 font-medium">
-              {user?.email}
-            </Text>
-          </View>
-          <View className="flex-row justify-between py-3 border-b border-gray-200">
             <Text className="text-sm font-semibold text-gray-500">
               User ID:
             </Text>
@@ -41,6 +36,11 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        <Button
+          title="Create Wallet"
+          onPress={() => router.push("/wallet/create")}
+        />
+        
         <Button
           title="Sign Out"
           onPress={logout}

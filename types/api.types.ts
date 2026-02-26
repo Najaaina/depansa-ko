@@ -22,6 +22,11 @@ export interface RegisterResponse {
   username: string;
 }
 
+export interface RegisterResult {
+  id: string;
+  username: string;
+}
+
 export interface LoginRequest {
   username: string;
   password: string;

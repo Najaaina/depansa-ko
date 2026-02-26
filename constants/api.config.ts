@@ -4,4 +4,8 @@ export const API_ENDPOINTS = {
   LOGIN: "/auth/sign-in",
   REGISTER: "/auth/sign-up",
   PING: "/ping",
+  WALLETS: "/account/:accountId/wallet",
+  TRANSACTIONS: "/account/:accountId/transaction",
+  LABELS: "/account/:accountId/label",
+  GOALS: "/account/:accountId/goal",
 } as const;
