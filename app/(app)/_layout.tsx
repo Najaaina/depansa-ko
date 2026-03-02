@@ -10,7 +10,7 @@ export default function AppLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen
-        name="wallet"
+        name="wallet/index"
         options={{
           headerShown: true,
           headerTitle: "My Wallets",
