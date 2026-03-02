@@ -19,9 +19,17 @@ Personal finance management mobile application built with React Native and Expo.
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` and set `EXPO_PUBLIC_API_URL` to your backend URL (e.g., `http://localhost:8080`)
+   
+   Edit `.env` and set `EXPO_PUBLIC_API_URL`:
+   - **Web**: `http://localhost:8080`
+   - **Android Emulator**: `http://10.0.2.2:8080`
+   - **iOS Simulator**: `http://localhost:8080`
+   - **Physical Device**: `http://YOUR_PC_IP:8080` (find with `ip addr`)
 
-3. **Start the development server**
+3. **Start the backend** (in `depansa++.backend` folder)
+   ```bash
+   npm run dev
+   ```
    ```bash
    npm run dev
    ```
