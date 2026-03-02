@@ -32,3 +32,8 @@ export interface GetAllTransactionsResponse {
   values: Transaction[];
   count: number;
 }
+
+export interface ApiError {
+  message: string;
+  status?: number;
+}

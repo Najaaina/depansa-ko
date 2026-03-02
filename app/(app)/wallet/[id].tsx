@@ -14,8 +14,8 @@ import { walletService } from "@/services/wallet.service";
 import { transactionService } from "@/services/transaction.service";
 import type { Wallet } from "@/types/wallet.types";
 import type { Transaction } from "@/types/transaction.types";
+import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 
 const WALLET_TYPE_LABELS: Record<string, string> = {
   CASH: "Cash",
@@ -132,8 +132,8 @@ export default function WalletDetailScreen() {
     >
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: wallet.color || "#3b82f6" }]}>
-          <Icon
-            name={WALLET_TYPE_ICONS[wallet.type] || "wallet-outline"}
+          <Ionicons
+            name={(WALLET_TYPE_ICONS[wallet.type] || "wallet-outline") as any}
             size={32}
             color="#fff"
           />
@@ -169,7 +169,7 @@ export default function WalletDetailScreen() {
 
         {wallet.walletAutomaticIncome?.type !== "NOT_SPECIFIED" && (
           <View style={styles.autoIncomeCard}>
-            <Icon name="repeat-outline" size={16} color="#10b981" />
+            <Ionicons name="repeat-outline" size={16} color="#10b981" />
             <View style={styles.autoIncomeContent}>
               <Text style={styles.autoIncomeLabel}>Automatic Income</Text>
               <Text style={styles.autoIncomeAmount}>
@@ -208,7 +208,7 @@ export default function WalletDetailScreen() {
         
         {transactions.length === 0 ? (
           <View style={styles.emptyTransactions}>
-            <Icon name="receipt-outline" size={40} color="#d1d5db" />
+            <Ionicons name="receipt-outline" size={40} color="#d1d5db" />
             <Text style={styles.emptyText}>No transactions yet</Text>
           </View>
         ) : (
@@ -226,11 +226,11 @@ export default function WalletDetailScreen() {
                     },
                   ]}
                 >
-                  <Icon
+                  <Ionicons
                     name={
-                      transaction.type === "INCOME"
+                      (transaction.type === "INCOME"
                         ? "arrow-down-outline"
-                        : "arrow-up-outline"
+                        : "arrow-up-outline") as any
                     }
                     size={16}
                     color={transaction.type === "INCOME" ? "#10b981" : "#ef4444"}

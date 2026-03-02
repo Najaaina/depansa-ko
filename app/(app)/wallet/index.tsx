@@ -12,8 +12,8 @@ import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { walletService } from "@/services/wallet.service";
 import type { Wallet } from "@/types/wallet.types";
+import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 
 const WALLET_TYPE_LABELS: Record<string, string> = {
   CASH: "Cash",
@@ -79,8 +79,8 @@ export default function WalletListScreen() {
           <View
             style={[styles.iconContainer, { backgroundColor: item.color || "#3b82f6" }]}
           >
-            <Icon
-              name={WALLET_TYPE_ICONS[item.type] || "wallet-outline"}
+            <Ionicons
+              name={(WALLET_TYPE_ICONS[item.type] || "wallet-outline") as any}
               size={20}
               color="#fff"
             />
@@ -96,7 +96,7 @@ export default function WalletListScreen() {
           <Text style={styles.walletAmount}>{formatAmount(item.amount)}</Text>
           {item.walletAutomaticIncome?.type !== "NOT_SPECIFIED" && (
             <View style={styles.autoIncomeBadge}>
-              <Icon name="repeat-outline" size={12} color="#10b981" />
+              <Ionicons name="repeat-outline" size={12} color="#10b981" />
               <Text style={styles.autoIncomeText}>Auto</Text>
             </View>
           )}
@@ -131,7 +131,7 @@ export default function WalletListScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="wallet-outline" size={64} color="#d1d5db" />
+      <Ionicons name="wallet-outline" size={64} color="#d1d5db" />
       <Text style={styles.emptyTitle}>No Wallets Yet</Text>
       <Text style={styles.emptyText}>
         Create your first wallet to start tracking your finances
