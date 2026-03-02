@@ -37,6 +37,11 @@ export default function HomeScreen() {
         </View>
 
         <Button
+          title="My Wallets"
+          onPress={() => router.push("/wallet")}
+        />
+        
+        <Button
           title="Create Wallet"
           onPress={() => router.push("/wallet/create")}
         />

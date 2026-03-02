@@ -1,4 +1,3 @@
-// hooks/useFormValidation.ts
 import { useState, useCallback } from "react";
 import { z, ZodType } from "zod";
 
@@ -29,15 +28,8 @@ export const useFormValidation = <T extends Record<string, any>>({
     return initial;
   });
 
-  /**
-   * Valide un champ individuel en parsant le schema entier avec
-   * les valeurs courantes + la nouvelle valeur du champ modifié.
-   * Cela permet aux refine() cross-fields (ex: password === confirmPassword)
-   * de fonctionner correctement lors de la validation à la volée.
-   */
   const validateField = useCallback(
     (name: string, value: string): string | null => {
-      // Construire les valeurs courantes en remplaçant le champ modifié
       const currentValues: Record<string, any> = {};
       Object.keys(fields).forEach((key) => {
         currentValues[key] = key === name ? value : fields[key].value;
@@ -60,11 +52,6 @@ export const useFormValidation = <T extends Record<string, any>>({
     [schema, fields]
   );
 
-  /**
-   * Met à jour la valeur d'un champ et valide immédiatement.
-   * L'erreur n'est visible que si le champ a déjà été touché (touched),
-   * pour ne pas afficher des erreurs avant que l'utilisateur ait interagi.
-   */
   const setFieldValue = useCallback(
     (name: string, value: string) => {
       const error = validateField(name, value);
@@ -72,7 +59,6 @@ export const useFormValidation = <T extends Record<string, any>>({
         ...prev,
         [name]: {
           value,
-          // On n'affiche l'erreur que si le champ a déjà été touché
           error: prev[name]?.touched ? error : null,
           touched: prev[name]?.touched || false,
         },
@@ -81,10 +67,6 @@ export const useFormValidation = <T extends Record<string, any>>({
     [validateField]
   );
 
-  /**
-   * Marque un champ comme touché (au onBlur) et déclenche sa validation.
-   * C'est à ce moment que les erreurs deviennent visibles pour la première fois.
-   */
   const setFieldTouched = useCallback(
     (name: string) => {
       setFields((prev) => {
