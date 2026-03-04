@@ -75,11 +75,11 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-10">
-          <Text className="text-4xl font-bold text-gray-800 mb-2">
+          <Text className="text-5xl font-bold text-slate-700 mb-2">
             Create Account
           </Text>
-          <Text className="text-base text-gray-500">
-            Sign up to get started with Depansa
+          <Text className="text-base text-slate-500">
+            Join Depansa to manage your budget and future project.
           </Text>
         </View>
 

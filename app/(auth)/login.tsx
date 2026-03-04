@@ -64,12 +64,12 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerClassName="flex-grow justify-center p-6"
+        contentContainerClassName="flex-grow justify-start p-6 mt-16"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex items-start mb-10 text-left">
-          <Text className="w-full text-6xl font-bold text-gray-800">
-            Welcome Back!
+        <View className="flex items-start mb-10 text-left h-[12vh] gap-2">
+          <Text className="w-full text-5xl font-bold text-gray-800">
+            Hellooo :>
           </Text>
           <Text className="text-base text-gray-500">
             Sign in to continue to track your Depansa
@@ -111,7 +111,7 @@ export default function LoginScreen() {
             disabled={!isFormValid()}
           />
 
-          <View className="flex-row justify-center mt-6">
+          <View className="flex-row justify-center mt-60">
             <Text className="text-sm text-gray-500">
               Don't have an account?{" "}
             </Text>
