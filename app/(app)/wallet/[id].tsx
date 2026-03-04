@@ -13,7 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { walletService } from "@/services/wallet.service";
 import { transactionService } from "@/services/transaction.service";
 import type { Wallet } from "@/types/wallet.types";
-import type { Transaction } from "@/types/transaction.types";
+import type { Transaction, TransactionFilters } from "@/types/transaction.types";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
 
@@ -246,7 +246,41 @@ export default function WalletDetailScreen() {
       </View>
 
       <View style={styles.transactionsSection}>
-        <Text style={styles.sectionTitle}>Recent Transactions</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Transactions</Text>
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={() => setShowFilters(!showFilters)}
+          >
+            <Ionicons name="filter-outline" size={18} color="#3b82f6" />
+            <Text style={styles.filterButtonText}>Filter</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {showFilters && (
+          <View style={styles.filterContainer}>
+            <Text style={styles.filterLabel}>Type:</Text>
+            <View style={styles.filterOptions}>
+              {(["ALL", "IN", "OUT"] as const).map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.filterOption,
+                    filterType === type && styles.filterOptionActive,
+                  ]}
+                  onPress={() => setFilterType(type)}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    filterType === type && styles.filterOptionTextActive,
+                  ]}>
+                    {type === "ALL" ? "All" : type === "IN" ? "Income" : "Expense"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
         
         {transactions.length === 0 ? (
           <View style={styles.emptyTransactions}>
@@ -305,6 +339,15 @@ export default function WalletDetailScreen() {
               </Text>
             </TouchableOpacity>
           ))
+        )}
+
+        {hasMore && transactions.length > 0 && (
+          <TouchableOpacity 
+            style={styles.loadMoreButton}
+            onPress={loadMore}
+          >
+            <Text style={styles.loadMoreText}>Load More</Text>
+          </TouchableOpacity>
         )}
       </View>
     </ScrollView>
@@ -473,5 +516,71 @@ const styles = StyleSheet.create({
   transactionAmount: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  filterButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: "#eff6ff",
+  },
+  filterButtonText: {
+    fontSize: 14,
+    color: "#3b82f6",
+    fontWeight: "500",
+  },
+  filterContainer: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: "#f9fafb",
+    borderRadius: 12,
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  filterOptions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  filterOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    backgroundColor: "#fff",
+  },
+  filterOptionActive: {
+    backgroundColor: "#3b82f6",
+    borderColor: "#3b82f6",
+  },
+  filterOptionText: {
+    fontSize: 14,
+    color: "#374151",
+  },
+  filterOptionTextActive: {
+    color: "#fff",
+    fontWeight: "500",
+  },
+  loadMoreButton: {
+    alignItems: "center",
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  loadMoreText: {
+    fontSize: 14,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
 });
