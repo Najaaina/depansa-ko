@@ -5,6 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { Platform } from "react-native";
 import { authService } from "@/services/auth.service";
 import { storageService } from "@/services/storage.service";
 import type {
@@ -64,6 +65,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         id: userData.id,
         username: userData.username,
       });
+      if (Platform.OS === "web") {
+        window.location.reload();
+      }
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || "Login failed");

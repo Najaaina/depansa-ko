@@ -8,7 +8,7 @@ import {
   Alert,
   StyleSheet,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { walletService } from "@/services/wallet.service";
 import type { Wallet } from "@/types/wallet.types";
@@ -35,13 +35,21 @@ export default function WalletListScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  console.log("WalletListScreen - User:", user);
+
   const fetchWallets = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.log("No user ID found");
+      return;
+    }
     
     try {
+      console.log("Fetching wallets for user:", user.id);
       const response = await walletService.getAll(user.id, { isActive: true });
+      console.log("Wallets response:", response);
       setWallets(response.values);
     } catch (error: any) {
+      console.error("Error fetching wallets:", error);
       Alert.alert("Error", error.message || "Failed to load wallets");
     } finally {
       setIsLoading(false);
@@ -49,9 +57,12 @@ export default function WalletListScreen() {
     }
   }, [user?.id]);
 
-  useEffect(() => {
-    fetchWallets();
-  }, [fetchWallets]);
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Screen focused, fetching wallets...");
+      fetchWallets();
+    }, [fetchWallets])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
