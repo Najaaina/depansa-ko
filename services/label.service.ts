@@ -1,6 +1,11 @@
 import { API_BASE_URL, API_ENDPOINTS } from "@/constants/api.config";
 import { storageService } from "@/services/storage.service";
-import type { Label, GetAllLabelsResponse, ApiError } from "@/types/label.types";
+import type {
+  Label,
+  GetAllLabelResponse,
+  ApiError,
+  CreationLabel
+} from "@/types/lablel.types";
 
 class LabelService {
   private async fetchApi<T>(
@@ -9,13 +14,22 @@ class LabelService {
   ): Promise<T> {
     try {
       const apiKey = await storageService.getApiKey();
+      console.log("API Key retrieved:", apiKey ? "exists" : "null");
+      
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...options.headers,
+      };
+      
+      if (apiKey) {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+        console.log("Sending request to:", endpoint);
+      } else {
+        console.warn("No API key found!");
+      }
       
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          ...options.headers,
-        },
+        headers,
         ...options,
       });
 
@@ -68,10 +82,10 @@ class LabelService {
     });
   }
 
-  async delete(accountId: string, labelId: string): Promise<void> {
-    const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${labelId}`;
-    await this.fetchApi<void>(endpoint, {
-      method: "DELETE",
+  async archive(accountId: string, labelId: string): Promise<Label> {
+    const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${labelId}/archive`;
+    return await this.fetchApi<Label>(endpoint, {
+      method: "POST",
     });
   }
 }

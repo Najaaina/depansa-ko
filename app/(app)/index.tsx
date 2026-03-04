@@ -101,8 +101,25 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Sign Out */}
         <TouchableOpacity
+        <Button
+          title="My Labels"
+          onPress={() => router.push("/label")}
+        />
+
+        <Button
+          title="My Wallets"
+          onPress={() => router.push("/wallet")}
+        />
+        
+        <Button
+          title="Create Wallet"
+          onPress={() => router.push("/wallet/create")}
+        />
+        
+        {/* Sign Out */}
+        <Button
+          title="Sign Out"
           onPress={logout}
           disabled={isLoading}
           style={styles.signOut}

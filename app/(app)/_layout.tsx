@@ -34,6 +34,14 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="label/index"
+        options={{
+          headerShown: true,
+          headerTitle: "My Labels",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/index"
         options={{
           headerShown: true,
