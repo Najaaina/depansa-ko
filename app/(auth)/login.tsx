@@ -20,6 +20,12 @@ import { loginSchema } from "@/schemas/auth.schemas";
 export default function LoginScreen() {
   const { login, loginWithGoogle, isLoading, error, clearError } = useAuth();
 
+  const handlePress = async () => {
+  console.log("Launching Google auth...");
+  const result = await promptAsync();
+  console.log("promptAsync result:", JSON.stringify(result));
+};
+
   const {
     fields,
     setFieldValue,
@@ -123,7 +129,7 @@ export default function LoginScreen() {
             disabled={!request}
             loading={googleLoading}
             label="Continue with Google"
-          />
+            />
 
           <View className="flex-row justify-center mt-6">
             <Text className="text-sm text-gray-500">

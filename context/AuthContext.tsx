@@ -13,6 +13,7 @@ import type {
   UserWithApiKey,
   ApiError,
 } from "@/types/api.types";
+import { router } from "expo-router";
 
 interface AuthContextType {
   user: Omit<UserWithApiKey, "apiKey"> | null;
@@ -68,6 +69,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const loginWithGoogle = (userData: { id: string; username: string }) => {
     setUser(userData);
+      router.replace("/(app)");
   };
 
   const register = async (userData: RegisterRequest) => {
