@@ -19,6 +19,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
+  loginWithGoogle: (user: { id: string; username: string }) => void;
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   error: string | null;
@@ -41,12 +42,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const checkAuthStatus = async () => {
     try {
       const userData = await storageService.getUserData();
-      setUser(userData);
-      if (userData) {
-        setUser(userData);
-      } else {
-        setUser(null);
-      }
+      setUser(userData ?? null);
     } catch (error) {
       console.error("Error checking auth status:", error);
     } finally {
@@ -60,10 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(true);
       const userData = await authService.login(credentials);
       await storageService.saveUserSession(userData);
-      setUser({
-        id: userData.id,
-        username: userData.username,
-      });
+      setUser({ id: userData.id, username: userData.username });
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || "Login failed");
@@ -71,6 +64,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loginWithGoogle = (userData: { id: string; username: string }) => {
+    setUser(userData);
   };
 
   const register = async (userData: RegisterRequest) => {
@@ -109,6 +106,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         isLoading,
         isAuthenticated: user !== null,
         login,
+        loginWithGoogle,
         register,
         logout,
         error,
