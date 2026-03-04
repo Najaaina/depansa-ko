@@ -1,26 +1,42 @@
 import "../global.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Slot, router, useSegments } from "expo-router";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { View, ActivityIndicator } from "react-native";
+import SplashScreen from "./splash";
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || showSplash) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-
     if (!isAuthenticated && !inAuthGroup) {
-      // Redirect to login if not authenticated and not in auth routes
       router.replace("/(auth)/login");
     } else if (isAuthenticated && inAuthGroup) {
-      // Redirect to home if authenticated and in auth routes
       router.replace("/(app)");
     }
-  }, [isAuthenticated, isLoading, segments]);
+  }, [isAuthenticated, isLoading, segments, showSplash]);
+
+  if (showSplash) {
+    return (
+      <SplashScreen
+        onFinish={() => {
+          if (!isLoading) {
+            setShowSplash(false);
+          } else {
+            const check = setInterval(() => {
+              setShowSplash(false);
+              clearInterval(check);
+            }, 200);
+          }
+        }}
+      />
+    );
+  }
 
   if (isLoading) {
     return (
