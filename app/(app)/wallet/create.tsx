@@ -65,7 +65,7 @@ export default function CreateWalletScreen() {
     }
 
     if (!user?.id) {
-      Alert.alert("Error", "User not authenticated");
+      Alert.alert("Error", "User not authenticated. Please login again.");
       return;
     }
 
@@ -83,10 +83,15 @@ export default function CreateWalletScreen() {
       await walletService.create(user.id, walletData);
       
       Alert.alert("Success", "Wallet created successfully!", [
-        { text: "OK", onPress: () => router.back() },
+        { text: "OK", onPress: () => router.replace("/wallet") },
       ]);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to create wallet");
+      console.error("Create wallet error:", error);
+      if (error.status === 401 || error.status === 403) {
+        Alert.alert("Error", "Session expired. Please login again.");
+      } else {
+        Alert.alert("Error", error.message || "Failed to create wallet");
+      }
     } finally {
       setIsLoading(false);
     }
