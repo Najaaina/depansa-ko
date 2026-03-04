@@ -52,6 +52,24 @@ export default function AppLayout() {
           presentation: "modal",
         }}
       />
+      <Stack.Screen
+        name="wallet/[id]/add-transaction"
+        options={{
+          headerShown: true,
+          headerTitle: "Add Transaction",
+          headerBackTitle: "Back",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="wallet/[id]/edit-transaction"
+        options={{
+          headerShown: true,
+          headerTitle: "Edit Transaction",
+          headerBackTitle: "Back",
+          presentation: "modal",
+        }}
+      />
     </Stack>
   );
 }

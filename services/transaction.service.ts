@@ -78,29 +78,37 @@ class TransactionService {
     params.append("walletId", walletId);
     
     if (filters.type) params.append("type", filters.type);
+    if (filters.startDate) params.append("startingDate", filters.startDate);
+    if (filters.endDate) params.append("endingDate", filters.endDate);
 
     const endpoint = `${API_ENDPOINTS.TRANSACTIONS.replace(":accountId", accountId)}?${params.toString()}`;
     return await this.fetchApi<GetAllTransactionsResponse>(endpoint);
   }
 
-  async create(accountId: string, transaction: CreationTransaction): Promise<Transaction> {
-    const endpoint = API_ENDPOINTS.TRANSACTIONS.replace(":accountId", accountId);
+  async create(accountId: string, walletId: string, transaction: CreationTransaction): Promise<Transaction> {
+    const endpoint = API_ENDPOINTS.WALLET_TRANSACTIONS
+      .replace(":accountId", accountId)
+      .replace(":walletId", walletId);
     return await this.fetchApi<Transaction>(endpoint, {
       method: "POST",
       body: JSON.stringify(transaction),
     });
   }
 
-  async update(accountId: string, transaction: UpdateTransaction): Promise<Transaction> {
-    const endpoint = `${API_ENDPOINTS.TRANSACTIONS.replace(":accountId", accountId)}/${transaction.id}`;
+  async update(accountId: string, walletId: string, transaction: UpdateTransaction): Promise<Transaction> {
+    const endpoint = `${API_ENDPOINTS.WALLET_TRANSACTIONS
+      .replace(":accountId", accountId)
+      .replace(":walletId", walletId)}/${transaction.id}`;
     return await this.fetchApi<Transaction>(endpoint, {
       method: "PUT",
       body: JSON.stringify(transaction),
     });
   }
 
-  async delete(accountId: string, transactionId: string): Promise<void> {
-    const endpoint = `${API_ENDPOINTS.TRANSACTIONS.replace(":accountId", accountId)}/${transactionId}`;
+  async delete(accountId: string, walletId: string, transactionId: string): Promise<void> {
+    const endpoint = `${API_ENDPOINTS.WALLET_TRANSACTIONS
+      .replace(":accountId", accountId)
+      .replace(":walletId", walletId)}/${transactionId}`;
     await this.fetchApi<void>(endpoint, {
       method: "DELETE",
     });

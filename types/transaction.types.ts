@@ -1,4 +1,7 @@
-export type TransactionType = "INCOME" | "EXPENSE";
+import type { Label } from "./label.types";
+
+export type TransactionType = "IN" | "OUT";
+export type TransactionTypeDisplay = "INCOME" | "EXPENSE";
 
 export interface Transaction {
   id: string;
@@ -7,6 +10,7 @@ export interface Transaction {
   type: TransactionType;
   description?: string;
   date: string;
+  labels?: Label[];
 }
 
 export interface CreationTransaction {
@@ -15,6 +19,7 @@ export interface CreationTransaction {
   type: TransactionType;
   description?: string;
   date: string;
+  labels: { id: string }[];
 }
 
 export interface UpdateTransaction extends CreationTransaction {
