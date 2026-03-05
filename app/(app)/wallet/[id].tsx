@@ -43,12 +43,20 @@ export default function WalletDetailScreen() {
     if (!user?.id || !id) return;
     
     try {
-      const [walletData, transactionsData] = await Promise.all([
-        walletService.getOne(user.id, id),
-        transactionService.getByWallet(user.id, id),
-      ]);
+      const walletData = await walletService.getOne(user.id, id);
+      let transactionsData: Transaction[] = [];
+      try {
+        const response = await transactionService.getByWallet(user.id, id);
+        if (Array.isArray(response)) {
+          transactionsData = response;
+        } else if (response && Array.isArray(response.values)) {
+          transactionsData = response.values;
+        }
+      } catch (txError) {
+        console.error("Error fetching transactions:", txError);
+      }
       setWallet(walletData);
-      setTransactions(transactionsData.values);
+      setTransactions(transactionsData);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to load wallet");
     } finally {

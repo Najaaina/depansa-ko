@@ -16,85 +16,84 @@ const isSecureStoreAvailable = (): boolean => {
   );
 };
 
+const webStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window === "undefined") return null;
+    return window.localStorage.getItem(key);
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(key, value);
+  },
+  removeItem: (key: string): void => {
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem(key);
+  },
+};
+
 export class StorageService {
   async saveUserSession(userData: UserWithApiKey): Promise<void> {
-    if (!isSecureStoreAvailable()) {
-      console.warn("SecureStore not available on this platform");
-      return;
-    }
-    try {
-      await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, String(userData.apiKey));
-      await SecureStore.setItemAsync(
-        STORAGE_KEYS.USER_DATA,
-        JSON.stringify({ id: userData.id, username: userData.username })
-      );
-      await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_PROVIDER, "local");
-    } catch (error) {
-      console.error("Error saving user session:", error);
-      throw new Error("Failed to save user session");
+    const dataToSave = JSON.stringify({
+      id: userData.id,
+      username: userData.username
+    });
+    console.log("Saving session - API Key:", userData.apiKey ? "exists" : "null");
+
+    if (isSecureStoreAvailable()) {
+      try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, String(userData.apiKey));
+        await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, dataToSave);
+        console.log("Saved to SecureStore");
+      } catch (error) {
+        console.error("Error saving user session:", error);
+        throw new Error("Failed to save user session");
+      }
+    } else {
+      webStorage.setItem(STORAGE_KEYS.API_KEY, String(userData.apiKey));
+      webStorage.setItem(STORAGE_KEYS.USER_DATA, dataToSave);
     }
   }
-
-  async saveGoogleSession(googleUser: GoogleUser): Promise<void> {
-    if (!isSecureStoreAvailable()) {
-      console.warn("SecureStore not available on this platform");
-      return;
-    }
-    try {
-      await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, googleUser.id);
-      await SecureStore.setItemAsync(
-        STORAGE_KEYS.USER_DATA,
-        JSON.stringify({ id: googleUser.id, username: googleUser.name })
-      );
-      await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_PROVIDER, "google");
-    } catch (error) {
-      console.error("Error saving Google session:", error);
-      throw new Error("Failed to save Google session");
-    }
-  }
-
 
   async getApiKey(): Promise<string | null> {
-    if (!isSecureStoreAvailable()) return null;
-    try {
-      return await SecureStore.getItemAsync(STORAGE_KEYS.API_KEY);
-    } catch (error) {
-      console.error("Error getting API key:", error);
-      return null;
+    if (isSecureStoreAvailable()) {
+      try {
+        const key = await SecureStore.getItemAsync(STORAGE_KEYS.API_KEY);
+        console.log("getApiKey from SecureStore:", key ? "exists" : "null");
+        return key;
+      } catch (error) {
+        console.error("Error getting API key:", error);
+        return null;
+      }
     }
+    return webStorage.getItem(STORAGE_KEYS.API_KEY);
   }
 
   async getUserData(): Promise<Omit<UserWithApiKey, "apiKey"> | null> {
-    if (!isSecureStoreAvailable()) return null;
-    try {
-      const userData = await SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA);
-      return userData ? JSON.parse(userData) : null;
-    } catch (error) {
-      console.error("Error getting user data:", error);
-      return null;
+    if (isSecureStoreAvailable()) {
+      try {
+        const userData = await SecureStore.getItemAsync(STORAGE_KEYS.USER_DATA);
+        return userData ? JSON.parse(userData) : null;
+      } catch (error) {
+        console.error("Error getting user data:", error);
+        return null;
+      }
     }
-  }
-
-  async getAuthProvider(): Promise<"local" | "google" | null> {
-    if (!isSecureStoreAvailable()) return null;
-    try {
-      const provider = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_PROVIDER);
-      return provider as "local" | "google" | null;
-    } catch (error) {
-      console.error("Error getting auth provider:", error);
-      return null;
-    }
+    const userData = webStorage.getItem(STORAGE_KEYS.USER_DATA);
+    return userData ? JSON.parse(userData) : null;
   }
 
   async clearSession(): Promise<void> {
-    if (!isSecureStoreAvailable()) return;
-    try {
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.API_KEY);
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA);
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_PROVIDER);
-    } catch (error) {
-      console.error("Error clearing session:", error);
-      throw new Error("Failed to clear session");
+    if (isSecureStoreAvailable()) {
+      try {
+        await SecureStore.deleteItemAsync(STORAGE_KEYS.API_KEY);
+        await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA);
+      } catch (error) {
+        console.error("Error clearing session:", error);
+        throw new Error("Failed to clear session");
+      }
+    } else {
+      webStorage.removeItem(STORAGE_KEYS.API_KEY);
+      webStorage.removeItem(STORAGE_KEYS.USER_DATA);
     }
   }
 
