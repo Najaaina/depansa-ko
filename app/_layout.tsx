@@ -4,6 +4,9 @@ import { Slot, router, useSegments } from "expo-router";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { View, ActivityIndicator } from "react-native";
 import SplashScreen from "./splash";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession()
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();

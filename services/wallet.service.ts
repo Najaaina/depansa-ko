@@ -17,13 +17,22 @@ class WalletService {
   ): Promise<T> {
     try {
       const apiKey = await storageService.getApiKey();
+      console.log("API Key retrieved:", apiKey ? "exists" : "null");
+      
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...options.headers,
+      };
+      
+      if (apiKey) {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+        console.log("Sending request to:", endpoint);
+      } else {
+        console.warn("No API key found!");
+      }
       
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          ...options.headers,
-        },
+        headers,
         ...options,
       });
 

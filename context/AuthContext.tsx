@@ -5,6 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { Platform } from "react-native";
 import { authService } from "@/services/auth.service";
 import { storageService } from "@/services/storage.service";
 import type {
@@ -13,12 +14,14 @@ import type {
   UserWithApiKey,
   ApiError,
 } from "@/types/api.types";
+import { router } from "expo-router";
 
 interface AuthContextType {
   user: Omit<UserWithApiKey, "apiKey"> | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
+  loginWithGoogle: (user: { id: string; username: string }) => void;
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   error: string | null;
@@ -41,12 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const checkAuthStatus = async () => {
     try {
       const userData = await storageService.getUserData();
-      setUser(userData);
-      if (userData) {
-        setUser(userData);
-      } else {
-        setUser(null);
-      }
+      setUser(userData ?? null);
     } catch (error) {
       console.error("Error checking auth status:", error);
     } finally {
@@ -64,6 +62,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         id: userData.id,
         username: userData.username,
       });
+      if (Platform.OS === "web") {
+        window.location.reload();
+      }
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || "Login failed");
@@ -71,6 +72,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loginWithGoogle = (userData: { id: string; username: string }) => {
+    setUser(userData);
+      router.replace("/(app)");
   };
 
   const register = async (userData: RegisterRequest) => {
@@ -109,6 +115,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         isLoading,
         isAuthenticated: user !== null,
         login,
+        loginWithGoogle,
         register,
         logout,
         error,

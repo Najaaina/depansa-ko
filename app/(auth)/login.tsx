@@ -11,12 +11,20 @@ import {
 import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { useFormValidation } from "@/hooks/useFormValidation";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
+import { GoogleButton } from "@/components/ui/GoogleButton";
 import { loginSchema } from "@/schemas/auth.schemas";
 
 export default function LoginScreen() {
-  const { login, isLoading, error, clearError } = useAuth();
+  const { login, loginWithGoogle, isLoading, error, clearError } = useAuth();
+
+  const handlePress = async () => {
+  console.log("Launching Google auth...");
+  const result = await promptAsync();
+  console.log("promptAsync result:", JSON.stringify(result));
+};
 
   const {
     fields,
@@ -27,11 +35,13 @@ export default function LoginScreen() {
     getValues,
   } = useFormValidation({
     schema: loginSchema,
-    initialValues: {
-      username: "",
-      password: "",
-    },
+    initialValues: { username: "", password: "" },
   });
+
+  const { request, promptAsync, isLoading: googleLoading } = useGoogleAuth(
+    (user) => loginWithGoogle(user),
+    (message) => Alert.alert("Google Error", message)
+  );
 
   useEffect(() => {
     if (error) {
@@ -41,12 +51,10 @@ export default function LoginScreen() {
   }, [error]);
 
   const handleLogin = async () => {
-    // Validate all fields and show errors
     if (!validateForm()) {
       Alert.alert("Validation Error", "Please fill in all fields correctly");
       return;
     }
-
     try {
       const values = getValues();
       await login({
@@ -54,7 +62,7 @@ export default function LoginScreen() {
         password: values.password || "",
       });
     } catch (err) {
-      // Error is handled in the AuthContext and displayed via Alert
+      // Handled in AuthContext
     }
   };
 
@@ -64,12 +72,12 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerClassName="flex-grow justify-center p-6"
+        contentContainerClassName="flex-grow justify-start p-6 mt-16"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex items-start mb-10 text-left">
-          <Text className="w-full text-6xl font-bold text-gray-800">
-            Welcome Back!
+        <View className="flex items-start mb-10 text-left h-[12vh] gap-2">
+          <Text className="w-full text-5xl font-bold text-gray-800">
+            Hellooo :>
           </Text>
           <Text className="text-base text-gray-500">
             Sign in to continue to track your Depansa
@@ -89,7 +97,6 @@ export default function LoginScreen() {
             autoCapitalize="none"
             autoComplete="username"
           />
-
           <Input
             label="Password"
             placeholder="Enter your password"
@@ -110,6 +117,19 @@ export default function LoginScreen() {
             loading={isLoading}
             disabled={!isFormValid()}
           />
+
+          <View className="flex-row items-center my-5">
+            <View className="flex-1 h-px bg-gray-200" />
+            <Text className="mx-4 text-gray-400 text-sm">or</Text>
+            <View className="flex-1 h-px bg-gray-200" />
+          </View>
+
+          <GoogleButton
+            onPress={() => promptAsync()}
+            disabled={!request}
+            loading={googleLoading}
+            label="Continue with Google"
+            />
 
           <View className="flex-row justify-center mt-6">
             <Text className="text-sm text-gray-500">
