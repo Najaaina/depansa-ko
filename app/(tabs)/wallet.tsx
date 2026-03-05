@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  RefreshControl,
-  StyleSheet,
-} from "react-native";
+import { View, Text, FlatList, TouchableOpacity, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { walletService } from "@/services/wallet.service";
@@ -71,13 +64,15 @@ export default function WalletsTab() {
 
   const renderWalletCard = ({ item }: { item: Wallet }) => (
     <TouchableOpacity
-      style={[styles.walletCard, { borderLeftColor: item.color || "#3b82f6" }]}
+      className="bg-white rounded-xl p-4 mb-3 border-l-4"
+      style={{ borderLeftColor: item.color || "#3b82f6" }}
       onPress={() => router.push(`/wallet/${item.id}`)}
     >
-      <View style={styles.walletHeader}>
-        <View style={styles.walletLeft}>
+      <View className="flex-row justify-between items-center">
+        <View className="flex-row items-center gap-3">
           <View
-            style={[styles.walletIcon, { backgroundColor: item.color || "#3b82f6" }]}
+            className="w-10 h-10 rounded-lg justify-center items-center"
+            style={{ backgroundColor: item.color || "#3b82f6" }}
           >
             <Ionicons
               name={(WALLET_TYPE_ICONS[item.type] || "wallet-outline") as any}
@@ -86,16 +81,16 @@ export default function WalletsTab() {
             />
           </View>
           <View>
-            <Text style={styles.walletName}>{item.name}</Text>
-            <Text style={styles.walletType}>
+            <Text className="text-gray-800 font-semibold">{item.name}</Text>
+            <Text className="text-gray-500 text-xs mt-0.5">
               {WALLET_TYPE_LABELS[item.type] || item.type}
             </Text>
           </View>
         </View>
-        <Text style={styles.walletAmount}>{formatAmount(item.amount)}</Text>
+        <Text className="text-gray-800 font-bold text-lg">{formatAmount(item.amount)}</Text>
       </View>
       {item.description && (
-        <Text style={styles.walletDescription} numberOfLines={1}>
+        <Text className="text-gray-500 text-sm mt-3" numberOfLines={1}>
           {item.description}
         </Text>
       )}
@@ -103,11 +98,11 @@ export default function WalletsTab() {
   );
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.totalCard}>
-        <Text style={styles.totalLabel}>Total Balance</Text>
-        <Text style={styles.totalAmount}>{formatAmount(calculateTotal())}</Text>
-        <Text style={styles.walletCount}>
+    <View className="mb-4">
+      <View className="bg-indigo-600 rounded-2xl p-5">
+        <Text className="text-indigo-200 text-sm">Total Balance</Text>
+        <Text className="text-white text-3xl font-bold mt-1">{formatAmount(calculateTotal())}</Text>
+        <Text className="text-indigo-200 text-sm mt-1">
           {wallets.length} wallet{wallets.length !== 1 ? "s" : ""}
         </Text>
       </View>
@@ -120,10 +115,10 @@ export default function WalletsTab() {
   );
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
+    <View className="flex-1 items-center justify-center py-10">
       <Ionicons name="wallet-outline" size={64} color="#d1d5db" />
-      <Text style={styles.emptyTitle}>No Wallets Yet</Text>
-      <Text style={styles.emptyText}>
+      <Text className="text-gray-600 font-semibold mt-4">No Wallets Yet</Text>
+      <Text className="text-gray-400 text-sm mt-2 text-center">
         Create your first wallet to start tracking your finances
       </Text>
       <Button
@@ -136,16 +131,16 @@ export default function WalletsTab() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <Text>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.screenHeader}>
-        <Text style={styles.screenTitle}>My Wallets</Text>
+    <View className="flex-1 bg-gray-50">
+      <View className="bg-white pt-12 pb-4 px-4 border-b border-gray-100">
+        <Text className="text-3xl font-bold text-gray-800">My Wallets</Text>
       </View>
 
       <FlatList
@@ -154,7 +149,7 @@ export default function WalletsTab() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle="px-4 pb-4"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -162,122 +157,3 @@ export default function WalletsTab() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9fafb",
-  },
-  screenHeader: {
-    backgroundColor: "#fff",
-    paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f3f4f6",
-  },
-  screenTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1f2937",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  listContent: {
-    padding: 16,
-    flexGrow: 1,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  totalCard: {
-    backgroundColor: "#4f46e5",
-    borderRadius: 16,
-    padding: 20,
-  },
-  totalLabel: {
-    fontSize: 14,
-    color: "#c7d2fe",
-    marginBottom: 4,
-  },
-  totalAmount: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 4,
-  },
-  walletCount: {
-    fontSize: 14,
-    color: "#c7d2fe",
-  },
-  walletCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  walletHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  walletLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  walletIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  walletName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1f2937",
-  },
-  walletType: {
-    fontSize: 12,
-    color: "#6b7280",
-    marginTop: 2,
-  },
-  walletAmount: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1f2937",
-  },
-  walletDescription: {
-    fontSize: 13,
-    color: "#6b7280",
-    marginTop: 8,
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 40,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#374151",
-    marginTop: 16,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: "#6b7280",
-    textAlign: "center",
-    marginTop: 8,
-  },
-});

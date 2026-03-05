@@ -6,21 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function HomeTab() {
-  const { user, logout, isLoading } = useAuth();
+  const { user } = useAuth();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
+    <View className="flex-1 bg-gray-50">
+      <View className="bg-indigo-600 pt-16 pb-8 px-5 items-center">
+        <View className="w-16 h-16 rounded-full bg-white/20 justify-center items-center mb-3">
           <Ionicons name="person" size={32} color="#fff" />
         </View>
-        <Text style={styles.welcomeText}>Welcome back,</Text>
-        <Text style={styles.username}>{user?.username || "User"}</Text>
+        <Text className="text-indigo-200 text-sm">Welcome back,</Text>
+        <Text className="text-white text-2xl font-bold">{user?.username || "User"}</Text>
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.quickActions}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+      <View className="flex-1 p-4">
+        <View className="bg-white rounded-2xl p-4 mb-4">
+          <Text className="text-gray-800 font-semibold mb-3">Quick Actions</Text>
           
           <Button
             title="View Wallets"
@@ -35,9 +35,9 @@ export default function HomeTab() {
           />
         </View>
 
-        <View style={styles.infoCard}>
+        <View className="bg-blue-50 flex-row items-start p-3 rounded-xl gap-2">
           <Ionicons name="information-circle-outline" size={20} color="#3b82f6" />
-          <Text style={styles.infoText}>
+          <Text className="text-blue-600 text-sm flex-1">
             Tip: Tap on a wallet to add transactions and view details
           </Text>
         </View>
@@ -45,65 +45,3 @@ export default function HomeTab() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9fafb",
-  },
-  header: {
-    backgroundColor: "#4f46e5",
-    paddingTop: 60,
-    paddingBottom: 24,
-    paddingHorizontal: 20,
-    alignItems: "center",
-  },
-  avatarContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  welcomeText: {
-    fontSize: 14,
-    color: "#c7d2fe",
-  },
-  username: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  quickActions: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1f2937",
-    marginBottom: 12,
-  },
-  infoCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#eff6ff",
-    padding: 12,
-    borderRadius: 12,
-    gap: 8,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#3b82f6",
-    lineHeight: 18,
-  },
-});
