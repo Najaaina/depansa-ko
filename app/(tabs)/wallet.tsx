@@ -5,10 +5,9 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
-  Alert,
   StyleSheet,
 } from "react-native";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { walletService } from "@/services/wallet.service";
 import type { Wallet } from "@/types/wallet.types";
@@ -29,40 +28,30 @@ const WALLET_TYPE_ICONS: Record<string, string> = {
   DEBT: "alert-circle-outline",
 };
 
-export default function WalletListScreen() {
+export default function WalletsTab() {
   const { user } = useAuth();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  console.log("WalletListScreen - User:", user);
-
   const fetchWallets = useCallback(async () => {
-    if (!user?.id) {
-      console.log("No user ID found");
-      return;
-    }
+    if (!user?.id) return;
     
     try {
-      console.log("Fetching wallets for user:", user.id);
       const response = await walletService.getAll(user.id);
-      console.log("Wallets response:", response);
-      setWallets(response.values);
-    } catch (error: any) {
+      const walletList = Array.isArray(response) ? response : response.values || [];
+      setWallets(walletList);
+    } catch (error) {
       console.error("Error fetching wallets:", error);
-      Alert.alert("Error", error.message || "Failed to load wallets");
     } finally {
       setIsLoading(false);
       setRefreshing(false);
     }
   }, [user?.id]);
 
-  useFocusEffect(
-    useCallback(() => {
-      console.log("Screen focused, fetching wallets...");
-      fetchWallets();
-    }, [fetchWallets])
-  );
+  useEffect(() => {
+    fetchWallets();
+  }, [fetchWallets]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -82,13 +71,13 @@ export default function WalletListScreen() {
 
   const renderWalletCard = ({ item }: { item: Wallet }) => (
     <TouchableOpacity
-      style={[styles.card, { borderLeftColor: item.color || "#3b82f6" }]}
+      style={[styles.walletCard, { borderLeftColor: item.color || "#3b82f6" }]}
       onPress={() => router.push(`/wallet/${item.id}`)}
     >
-      <View style={styles.cardHeader}>
-        <View style={styles.cardLeft}>
+      <View style={styles.walletHeader}>
+        <View style={styles.walletLeft}>
           <View
-            style={[styles.iconContainer, { backgroundColor: item.color || "#3b82f6" }]}
+            style={[styles.walletIcon, { backgroundColor: item.color || "#3b82f6" }]}
           >
             <Ionicons
               name={(WALLET_TYPE_ICONS[item.type] || "wallet-outline") as any}
@@ -103,15 +92,7 @@ export default function WalletListScreen() {
             </Text>
           </View>
         </View>
-        <View style={styles.cardRight}>
-          <Text style={styles.walletAmount}>{formatAmount(item.amount)}</Text>
-          {item.walletAutomaticIncome?.type !== "NOT_SPECIFIED" && (
-            <View style={styles.autoIncomeBadge}>
-              <Ionicons name="repeat-outline" size={12} color="#10b981" />
-              <Text style={styles.autoIncomeText}>Auto</Text>
-            </View>
-          )}
-        </View>
+        <Text style={styles.walletAmount}>{formatAmount(item.amount)}</Text>
       </View>
       {item.description && (
         <Text style={styles.walletDescription} numberOfLines={1}>
@@ -130,13 +111,11 @@ export default function WalletListScreen() {
           {wallets.length} wallet{wallets.length !== 1 ? "s" : ""}
         </Text>
       </View>
-      <View style={styles.actionButtons}>
-        <Button
-          title="Create Wallet"
-          onPress={() => router.push("/wallet/create")}
-          className="flex-1"
-        />
-      </View>
+      <Button
+        title="Create Wallet"
+        onPress={() => router.push("/wallet/create")}
+        className="mt-4"
+      />
     </View>
   );
 
@@ -155,17 +134,21 @@ export default function WalletListScreen() {
     </View>
   );
 
-    if (isLoading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <Text>Loading...</Text>
-        </View>
-      );
-    }
-
+  if (isLoading) {
     return (
-      <View style={styles.container}>
-        <FlatList
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.screenHeader}>
+        <Text style={styles.screenTitle}>My Wallets</Text>
+      </View>
+
+      <FlatList
         data={wallets}
         renderItem={renderWalletCard}
         keyExtractor={(item) => item.id}
@@ -185,6 +168,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9fafb",
   },
+  screenHeader: {
+    backgroundColor: "#fff",
+    paddingTop: 50,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+  },
+  screenTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1f2937",
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -201,7 +197,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#4f46e5",
     borderRadius: 16,
     padding: 20,
-    marginBottom: 16,
   },
   totalLabel: {
     fontSize: 14,
@@ -218,11 +213,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#c7d2fe",
   },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  card: {
+  walletCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
@@ -234,25 +225,22 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
   },
-  cardHeader: {
+  walletHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  cardLeft: {
+  walletLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
-  iconContainer: {
+  walletIcon: {
     width: 40,
     height: 40,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-  },
-  cardRight: {
-    alignItems: "flex-end",
   },
   walletName: {
     fontSize: 16,
@@ -269,21 +257,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1f2937",
   },
-  autoIncomeBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#d1fae5",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    marginTop: 4,
-  },
-  autoIncomeText: {
-    fontSize: 10,
-    color: "#10b981",
-    fontWeight: "600",
-  },
   walletDescription: {
     fontSize: 13,
     color: "#6b7280",
@@ -291,8 +264,8 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 40,
   },
   emptyTitle: {
