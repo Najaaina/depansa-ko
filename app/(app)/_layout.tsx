@@ -50,6 +50,14 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="label/create"
+        options={{
+          headerShown: true,
+          headerTitle: "Create Label",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/create"
         options={{
           headerShown: true,
