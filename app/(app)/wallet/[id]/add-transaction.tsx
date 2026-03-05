@@ -98,7 +98,11 @@ export default function AddTransactionScreen() {
       return;
     }
 
-    // Labels are optional for now - backend may require them later
+    // Labels are required by backend - use default "General" label if none selected
+    // TODO: Remove this when backend allows transactions without labels
+    const transactionLabels = selectedLabels.length > 0 
+      ? selectedLabels.map(id => ({ id }))
+      : [{ id: "03b0d3f9-14f1-47bd-a3c7-a3225ed93b7e" }]; // Default label for now
 
     setIsLoading(true);
     try {
@@ -108,7 +112,7 @@ export default function AddTransactionScreen() {
         type,
         description: description || undefined,
         date,
-        labels: selectedLabels.map(id => ({ id })),
+        labels: transactionLabels,
       });
       
       setSuccessMessage(

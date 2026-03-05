@@ -74,6 +74,10 @@ export default function EditTransactionScreen() {
 
     setIsLoading(true);
     try {
+      const transactionLabels = selectedLabels.length > 0 
+        ? selectedLabels.map(id => ({ id }))
+        : [{ id: "03b0d3f9-14f1-47bd-a3c7-a3225ed93b7e" }];
+      
       await transactionService.update(user.id, walletId, {
         id: transactionId,
         walletId,
@@ -81,7 +85,7 @@ export default function EditTransactionScreen() {
         type,
         description: description || undefined,
         date,
-        labels: selectedLabels.map(id => ({ id })),
+        labels: transactionLabels,
       });
       
       Alert.alert("Success", "Transaction updated successfully", [

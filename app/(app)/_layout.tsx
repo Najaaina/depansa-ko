@@ -10,10 +10,26 @@ export default function AppLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen
+        name="settings"
+        options={{
+          headerShown: true,
+          headerTitle: "Settings",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="notification-settings"
         options={{
           headerShown: true,
           headerTitle: "Notification Settings",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="currency-settings"
+        options={{
+          headerShown: true,
+          headerTitle: "Currency",
           headerBackTitle: "Back",
         }}
       />
