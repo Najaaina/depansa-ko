@@ -1,25 +1,61 @@
-import '@/global.css';
+import "../global.css";
+import { useEffect, useState } from "react";
+import { Slot, router, useSegments } from "expo-router";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { View, ActivityIndicator } from "react-native";
+import SplashScreen from "./splash";
+import * as WebBrowser from "expo-web-browser";
 
-import { NAV_THEME } from '@/lib/theme';
-import { ThemeProvider } from '@react-navigation/native';
-import { PortalHost } from '@rn-primitives/portal';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useColorScheme } from 'nativewind';
+WebBrowser.maybeCompleteAuthSession()
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+function RootLayoutNav() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const segments = useSegments();
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    if (isLoading || showSplash) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+    if (!isAuthenticated && !inAuthGroup) {
+      router.replace("/(auth)/login");
+    } else if (isAuthenticated && inAuthGroup) {
+      router.replace("/(app)");
+    }
+  }, [isAuthenticated, isLoading, segments, showSplash]);
+
+  if (showSplash) {
+    return (
+      <SplashScreen
+        onFinish={() => {
+          if (!isLoading) {
+            setShowSplash(false);
+          } else {
+            const check = setInterval(() => {
+              setShowSplash(false);
+              clearInterval(check);
+            }, 200);
+          }
+        }}
+      />
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#6366F1" />
+      </View>
+    );
+  }
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
-  const { colorScheme } = useColorScheme();
-
   return (
-    <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      <Stack />
-      <PortalHost />
-    </ThemeProvider>
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }
