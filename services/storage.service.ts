@@ -35,13 +35,19 @@ export class StorageService {
   async saveUserSession(userData: UserWithApiKey): Promise<void> {
     const dataToSave = JSON.stringify({
       id: userData.id,
-      username: userData.username
+      username: userData.username,
     });
-    console.log("Saving session - API Key:", userData.apiKey ? "exists" : "null");
+    console.log(
+      "Saving session - API Key:",
+      userData.apiKey ? "exists" : "null",
+    );
 
     if (isSecureStoreAvailable()) {
       try {
-        await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, String(userData.apiKey));
+        await SecureStore.setItemAsync(
+          STORAGE_KEYS.API_KEY,
+          String(userData.apiKey),
+        );
         await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, dataToSave);
         console.log("Saved to SecureStore");
       } catch (error) {
@@ -87,6 +93,7 @@ export class StorageService {
       try {
         await SecureStore.deleteItemAsync(STORAGE_KEYS.API_KEY);
         await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA);
+        await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_PROVIDER);
       } catch (error) {
         console.error("Error clearing session:", error);
         throw new Error("Failed to clear session");
@@ -94,6 +101,7 @@ export class StorageService {
     } else {
       webStorage.removeItem(STORAGE_KEYS.API_KEY);
       webStorage.removeItem(STORAGE_KEYS.USER_DATA);
+      webStorage.removeItem(STORAGE_KEYS.AUTH_PROVIDER);
     }
   }
 
@@ -101,6 +109,44 @@ export class StorageService {
     const apiKey = await this.getApiKey();
     return apiKey !== null;
   }
-}
 
+  async saveGoogleSession(googleUser: GoogleUser): Promise<void> {
+    const dataToSave = JSON.stringify({
+      id: googleUser.id,
+      username: googleUser.name,
+    });
+
+    if (isSecureStoreAvailable()) {
+      try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.API_KEY, googleUser.id);
+        await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, dataToSave);
+        await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_PROVIDER, "google");
+      } catch (error) {
+        console.error("Error saving Google session:", error);
+        throw new Error("Failed to save Google session");
+      }
+    } else {
+      webStorage.setItem(STORAGE_KEYS.API_KEY, googleUser.id);
+      webStorage.setItem(STORAGE_KEYS.USER_DATA, dataToSave);
+      webStorage.setItem(STORAGE_KEYS.AUTH_PROVIDER, "google");
+    }
+  }
+
+  async getAuthProvider(): Promise<"local" | "google" | null> {
+    if (isSecureStoreAvailable()) {
+      try {
+        const provider = await SecureStore.getItemAsync(
+          STORAGE_KEYS.AUTH_PROVIDER,
+        );
+        return (provider as "local" | "google") ?? null;
+      } catch {
+        return null;
+      }
+    }
+    return webStorage.getItem(STORAGE_KEYS.AUTH_PROVIDER) as
+      | "local"
+      | "google"
+      | null;
+  }
+}
 export const storageService = new StorageService();
