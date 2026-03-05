@@ -45,7 +45,7 @@ export default function WalletListScreen() {
     
     try {
       console.log("Fetching wallets for user:", user.id);
-      const response = await walletService.getAll(user.id, { isActive: true });
+      const response = await walletService.getAll(user.id);
       console.log("Wallets response:", response);
       setWallets(response.values);
     } catch (error: any) {
@@ -155,17 +155,17 @@ export default function WalletListScreen() {
     </View>
   );
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <Text>Loading...</Text>
+        </View>
+      );
+    }
 
-  return (
-    <View style={styles.container}>
-      <FlatList
+    return (
+      <View style={styles.container}>
+        <FlatList
         data={wallets}
         renderItem={renderWalletCard}
         keyExtractor={(item) => item.id}

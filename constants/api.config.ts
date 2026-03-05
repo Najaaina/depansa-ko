@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   REGISTER: "/auth/sign-up",
   PING: "/ping",
   WALLETS: "/account/:accountId/wallet",
+  WALLET_TRANSACTIONS: "/account/:accountId/wallet/:walletId/transaction",
   TRANSACTIONS: "/account/:accountId/transaction",
   LABELS: "/account/:accountId/label",
   GOALS: "/account/:accountId/goal",

@@ -13,7 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { walletService } from "@/services/wallet.service";
 import { transactionService } from "@/services/transaction.service";
 import type { Wallet } from "@/types/wallet.types";
-import type { Transaction } from "@/types/transaction.types";
+import type { Transaction, TransactionFilters } from "@/types/transaction.types";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
 
@@ -38,40 +38,66 @@ export default function WalletDetailScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterType, setFilterType] = useState<"ALL" | "IN" | "OUT">("ALL");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (pageNum: number = 1) => {
     if (!user?.id || !id) return;
     
     try {
       const walletData = await walletService.getOne(user.id, id);
       let transactionsData: Transaction[] = [];
       try {
-        const response = await transactionService.getByWallet(user.id, id);
+        const filters: TransactionFilters = {};
+        if (filterType !== "ALL") {
+          filters.type = filterType;
+        }
+        const response = await transactionService.getByWallet(user.id, id, filters, pageNum, 20);
         if (Array.isArray(response)) {
           transactionsData = response;
         } else if (response && Array.isArray(response.values)) {
           transactionsData = response.values;
+          setHasMore(transactionsData.length === 20);
         }
       } catch (txError) {
         console.error("Error fetching transactions:", txError);
       }
+      if (pageNum === 1) {
+        setTransactions(transactionsData);
+      } else {
+        setTransactions(prev => [...prev, ...transactionsData]);
+      }
       setWallet(walletData);
-      setTransactions(transactionsData);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to load wallet");
     } finally {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id, id]);
+  }, [user?.id, id, filterType]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(1);
   }, [fetchData]);
+
+  useEffect(() => {
+    setPage(1);
+    fetchData(1);
+  }, [filterType]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchData();
+    fetchData(1);
+  };
+
+  const loadMore = () => {
+    if (hasMore && !isLoading) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchData(nextPage);
+    }
   };
 
   const handleArchive = () => {
@@ -124,11 +150,11 @@ export default function WalletDetailScreen() {
   }
 
   const totalIncome = transactions
-    .filter(t => t.type === "INCOME")
+    .filter(t => t.type === "IN")
     .reduce((sum, t) => sum + t.amount, 0);
   
   const totalExpense = transactions
-    .filter(t => t.type === "EXPENSE")
+    .filter(t => t.type === "OUT")
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
@@ -190,6 +216,29 @@ export default function WalletDetailScreen() {
 
       <View style={styles.actions}>
         <Button
+          title="Add Transaction"
+          onPress={() => router.push(`/wallet/${id}/add-transaction`)}
+          className="flex-1"
+        />
+      </View>
+
+      <View style={styles.actions}>
+        <Button
+          title="Calendar"
+          onPress={() => router.push(`/wallet/${id}/calendar`)}
+          variant="outline"
+          className="flex-1"
+        />
+        <Button
+          title="Statistics"
+          onPress={() => router.push(`/wallet/${id}/statistics`)}
+          variant="outline"
+          className="flex-1"
+        />
+      </View>
+
+      <View style={styles.actions}>
+        <Button
           title="Edit Wallet"
           onPress={() => router.push(`/wallet/${id}/edit`)}
           className="flex-1"
@@ -212,7 +261,41 @@ export default function WalletDetailScreen() {
       </View>
 
       <View style={styles.transactionsSection}>
-        <Text style={styles.sectionTitle}>Recent Transactions</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Transactions</Text>
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={() => setShowFilters(!showFilters)}
+          >
+            <Ionicons name="filter-outline" size={18} color="#3b82f6" />
+            <Text style={styles.filterButtonText}>Filter</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {showFilters && (
+          <View style={styles.filterContainer}>
+            <Text style={styles.filterLabel}>Type:</Text>
+            <View style={styles.filterOptions}>
+              {(["ALL", "IN", "OUT"] as const).map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.filterOption,
+                    filterType === type && styles.filterOptionActive,
+                  ]}
+                  onPress={() => setFilterType(type)}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    filterType === type && styles.filterOptionTextActive,
+                  ]}>
+                    {type === "ALL" ? "All" : type === "IN" ? "Income" : "Expense"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
         
         {transactions.length === 0 ? (
           <View style={styles.emptyTransactions}>
@@ -221,14 +304,18 @@ export default function WalletDetailScreen() {
           </View>
         ) : (
           transactions.map((transaction) => (
-            <View key={transaction.id} style={styles.transactionItem}>
+            <TouchableOpacity 
+              key={transaction.id} 
+              style={styles.transactionItem}
+              onPress={() => router.push(`/wallet/${id}/edit-transaction?transactionId=${transaction.id}&walletId=${id}`)}
+            >
               <View style={styles.transactionLeft}>
                 <View
                   style={[
                     styles.transactionIcon,
                     {
                       backgroundColor:
-                        transaction.type === "INCOME"
+                        transaction.type === "IN"
                           ? "#d1fae5"
                           : "#fee2e2",
                     },
@@ -236,12 +323,12 @@ export default function WalletDetailScreen() {
                 >
                   <Ionicons
                     name={
-                      (transaction.type === "INCOME"
+                      (transaction.type === "IN"
                         ? "arrow-down-outline"
                         : "arrow-up-outline") as any
                     }
                     size={16}
-                    color={transaction.type === "INCOME" ? "#10b981" : "#ef4444"}
+                    color={transaction.type === "IN" ? "#10b981" : "#ef4444"}
                   />
                 </View>
                 <View>
@@ -258,15 +345,24 @@ export default function WalletDetailScreen() {
                   styles.transactionAmount,
                   {
                     color:
-                      transaction.type === "INCOME" ? "#10b981" : "#ef4444",
+                      transaction.type === "IN" ? "#10b981" : "#ef4444",
                   },
                 ]}
               >
-                {transaction.type === "INCOME" ? "+" : "-"}
+                {transaction.type === "IN" ? "+" : "-"}
                 {formatAmount(transaction.amount)}
               </Text>
-            </View>
+            </TouchableOpacity>
           ))
+        )}
+
+        {hasMore && transactions.length > 0 && (
+          <TouchableOpacity 
+            style={styles.loadMoreButton}
+            onPress={loadMore}
+          >
+            <Text style={styles.loadMoreText}>Load More</Text>
+          </TouchableOpacity>
         )}
       </View>
     </ScrollView>
@@ -435,5 +531,71 @@ const styles = StyleSheet.create({
   transactionAmount: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  filterButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: "#eff6ff",
+  },
+  filterButtonText: {
+    fontSize: 14,
+    color: "#3b82f6",
+    fontWeight: "500",
+  },
+  filterContainer: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: "#f9fafb",
+    borderRadius: 12,
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  filterOptions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  filterOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    backgroundColor: "#fff",
+  },
+  filterOptionActive: {
+    backgroundColor: "#3b82f6",
+    borderColor: "#3b82f6",
+  },
+  filterOptionText: {
+    fontSize: 14,
+    color: "#374151",
+  },
+  filterOptionTextActive: {
+    color: "#fff",
+    fontWeight: "500",
+  },
+  loadMoreButton: {
+    alignItems: "center",
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  loadMoreText: {
+    fontSize: 14,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
 });
