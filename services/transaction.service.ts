@@ -73,8 +73,7 @@ class TransactionService {
     pageSize: number = 20,
   ): Promise<GetAllTransactionsResponse> {
     const params = new URLSearchParams();
-    params.append("page", page.toString());
-    params.append("pageSize", pageSize.toString());
+    params.append("page", String(page));
     params.append("walletId", walletId);
     
     if (filters.type) params.append("type", filters.type);

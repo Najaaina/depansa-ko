@@ -134,10 +134,10 @@ export default function EditTransactionScreen() {
         <Tabs value={type} onValueChange={(val) => setType(val as TransactionType)} className="w-full">
           <TabsList className="w-full">
             <TabsTrigger value="OUT" className="flex-1">
-              <Text className={type === "OUT" ? "text-white" : "text-red-500"}>Expense</Text>
+              <Text className={type === "OUT" ? "text-gray-400" : "text-gray-400"}>Expense</Text>
             </TabsTrigger>
             <TabsTrigger value="IN" className="flex-1">
-              <Text className={type === "IN" ? "text-white" : "text-green-500"}>Income</Text>
+              <Text className={type === "IN" ? "text-gray-400" : "text-gray-400"}>Income</Text>
             </TabsTrigger>
           </TabsList>
         </Tabs>
