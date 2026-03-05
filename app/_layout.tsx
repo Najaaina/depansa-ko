@@ -6,15 +6,16 @@ import { View, ActivityIndicator } from "react-native";
 import SplashScreen from "./splash";
 import * as WebBrowser from "expo-web-browser";
 
-WebBrowser.maybeCompleteAuthSession()
+WebBrowser.maybeCompleteAuthSession();
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
-  const [showSplash, setShowSplash] = useState(true);
+  const [splashDone, setSplashDone] = useState(false);
 
+  // Navigation — se déclenche quand splash ET auth sont prêts
   useEffect(() => {
-    if (isLoading || showSplash) return;
+    if (!splashDone || isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
     if (!isAuthenticated && !inAuthGroup) {
@@ -22,23 +23,10 @@ function RootLayoutNav() {
     } else if (isAuthenticated && inAuthGroup) {
       router.replace("/(app)");
     }
-  }, [isAuthenticated, isLoading, segments, showSplash]);
+  }, [splashDone, isAuthenticated, isLoading, segments]);
 
-  if (showSplash) {
-    return (
-      <SplashScreen
-        onFinish={() => {
-          if (!isLoading) {
-            setShowSplash(false);
-          } else {
-            const check = setInterval(() => {
-              setShowSplash(false);
-              clearInterval(check);
-            }, 200);
-          }
-        }}
-      />
-    );
+  if (!splashDone) {
+    return <SplashScreen onFinish={() => setSplashDone(true)} />;
   }
 
   if (isLoading) {
