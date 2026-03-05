@@ -1,16 +1,19 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import type { UserWithApiKey } from "@/types/api.types";
+import type { UserWithApiKey, GoogleUser } from "@/types/api.types";
 
 const STORAGE_KEYS = {
   API_KEY: "api_key",
   USER_DATA: "user_data",
+  AUTH_PROVIDER: "auth_provider",
 } as const;
 
 const isSecureStoreAvailable = (): boolean => {
-  return Platform.OS !== "web" && 
-         SecureStore && 
-         typeof SecureStore.getItemAsync === "function";
+  return (
+    Platform.OS !== "web" &&
+    !!SecureStore &&
+    typeof SecureStore.getItemAsync === "function"
+  );
 };
 
 const webStorage = {

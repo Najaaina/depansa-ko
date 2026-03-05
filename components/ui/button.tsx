@@ -44,7 +44,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
-      className={`h-12 rounded-xl justify-center items-center my-2 ${getVariantClasses()} ${isDisabled ? "opacity-50" : ""} ${className || ""}`}
+      className={`h-14 rounded-xl justify-center items-center my-2 ${getVariantClasses()} ${isDisabled ? "opacity-50" : ""} ${className || ""}`}
       disabled={isDisabled}
       activeOpacity={0.7}
       {...props}

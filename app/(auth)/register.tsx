@@ -11,12 +11,14 @@ import {
 import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { useFormValidation } from "@/hooks/useFormValidation";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
+import { GoogleButton } from "@/components/ui/GoogleButton";
 import { registerSchema } from "@/schemas/auth.schemas";
 
 export default function RegisterScreen() {
-  const { register, isLoading, error, clearError } = useAuth();
+  const { register, loginWithGoogle, isLoading, error, clearError } = useAuth();
 
   const {
     fields,
@@ -35,6 +37,13 @@ export default function RegisterScreen() {
     },
   });
 
+  const { request, promptAsync, isLoading: googleLoading } = useGoogleAuth(
+    (user) => {
+      loginWithGoogle(user);
+    },
+    (message) => Alert.alert("Google Error", message)
+  );
+
   useEffect(() => {
     if (error) {
       Alert.alert("Registration Error", error);
@@ -43,12 +52,10 @@ export default function RegisterScreen() {
   }, [error]);
 
   const handleRegister = async () => {
-    // Validate all fields and show errors
     if (!validateForm()) {
       Alert.alert("Validation Error", "Please fill in all fields correctly");
       return;
     }
-
     try {
       const values = getValues();
       await register({
@@ -61,7 +68,7 @@ export default function RegisterScreen() {
         [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
       );
     } catch (err) {
-      // Error is handled in the AuthContext and displayed via Alert
+      // Handled in AuthContext
     }
   };
 
@@ -75,11 +82,11 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-10">
-          <Text className="text-4xl font-bold text-gray-800 mb-2">
+          <Text className="text-5xl font-bold text-slate-700 mb-2">
             Create Account
           </Text>
-          <Text className="text-base text-gray-500">
-            Sign up to get started with Depansa
+          <Text className="text-base text-slate-500">
+            Join Depansa to manage your budget and future project.
           </Text>
         </View>
 
@@ -96,7 +103,6 @@ export default function RegisterScreen() {
             autoCapitalize="none"
             autoComplete="username"
           />
-
           <Input
             label="Email"
             placeholder="Enter your email"
@@ -110,7 +116,6 @@ export default function RegisterScreen() {
             autoCapitalize="none"
             autoComplete="email"
           />
-
           <Input
             label="Password"
             placeholder="Create a password"
@@ -124,7 +129,6 @@ export default function RegisterScreen() {
             autoCapitalize="none"
             autoComplete="password-new"
           />
-
           <Input
             label="Confirm Password"
             placeholder="Confirm your password"
@@ -144,6 +148,19 @@ export default function RegisterScreen() {
             onPress={handleRegister}
             loading={isLoading}
             disabled={!isFormValid()}
+          />
+
+          <View className="flex-row items-center my-5">
+            <View className="flex-1 h-px bg-gray-200" />
+            <Text className="mx-4 text-gray-400 text-sm">or</Text>
+            <View className="flex-1 h-px bg-gray-200" />
+          </View>
+
+          <GoogleButton
+            onPress={() => promptAsync()}
+            disabled={!request}
+            loading={googleLoading}
+            label="Sign up with Google"
           />
 
           <View className="flex-row justify-center mt-6">
