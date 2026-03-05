@@ -16,10 +16,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
 
 const LABEL_TYPE_ICONS: Record<string, string> = {
-  CASH: "cash-outline",
-  MOBILE_MONEY: "phone-portrait-outline",
-  BANK: "card-outline",
-  DEBT: "alert-circle-outline",
+  WORK: "briefcase",
+  SCHOOL: "school",
+  FOOD: "fast-food",
+  TRANSPORT: "bus",
+  SHOPPING:"cart",
+  HEALTH:"medkit-sharp",
+  ENTERTAINEMENT:"extension-puzzle",
+  MISC: "star"
 };
 
 export default function LabelListScreen() {
@@ -28,8 +32,8 @@ export default function LabelListScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  console.log("WalletListScreen - User:", user);
-
+  console.log("LabelListScreen - User:", user);
+  
   const fetchLabels = useCallback(async () => {
     if (!user?.id) {
       console.log("No user ID found");
@@ -37,13 +41,13 @@ export default function LabelListScreen() {
     }
     
     try {
-      console.log("Fetching wallets for user:", user.id);
+      console.log("Fetching labels for user:", user.id);
       const response = await labelService.getAll(user.id);
-      console.log("Wallets response:", response);
+      console.log("Labels response:", response);
       setLabels(response.values);
     } catch (error: any) {
-      console.error("Error fetching wallets:", error);
-      Alert.alert("Error", error.message || "Failed to load wallets");
+      console.error("Error fetching labels:", error);
+      Alert.alert("Error", error.message || "Failed to load labels");
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -52,7 +56,7 @@ export default function LabelListScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused, fetching wallets...");
+      console.log("Screen focused, fetching labels...");
       fetchLabels();
     }, [fetchLabels])
   );
@@ -62,7 +66,7 @@ export default function LabelListScreen() {
     fetchLabels();
   };
 
-  const renderWalletCard = ({ item }: { item: Label }) => (
+  const renderLabelCard = ({ item }: { item: Label }) => (
     <TouchableOpacity
       style={[styles.card, { borderLeftColor: item.color || "#3b82f6" }]}
       onPress={() => router.push(`/label/${item.id}`)}
@@ -73,17 +77,21 @@ export default function LabelListScreen() {
             style={[styles.iconContainer, { backgroundColor: item.color || "#3b82f6" }]}
           >
             <Ionicons
-              name={(LABEL_TYPE_ICONS[item.iconRef] || "wallet-outline") as any}
+              name={(LABEL_TYPE_ICONS[item.iconRef] || "help") as any}
               size={20}
               color="#fff"
             />
           </View>
           <View>
-            <Text style={styles.walletName}>{item.name}</Text>
+            <Text style={styles.labelName}>{item.name}</Text>
           </View>
         </View>
         <View style={styles.cardRight}>
-            <Text style={styles.walletName}>Placeholder</Text>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={20}
+              color="#000000"
+            />
         </View>
       </View>
     </TouchableOpacity>
@@ -93,7 +101,7 @@ export default function LabelListScreen() {
     <View style={styles.header}>
       <View style={styles.totalCard}>
         <Text style={styles.totalLabel}>Created Label</Text>
-        <Text style={styles.walletCount}>
+        <Text style={styles.labelCount}>
           {labels.length} label{labels.length > 1 ? "s" : ""}
         </Text>
       </View>
@@ -103,7 +111,7 @@ export default function LabelListScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="wallet-outline" size={64} color="#d1d5db" />
+      <Ionicons name="pricetag" size={64} color="#d1d5db" />
       <Text style={styles.emptyTitle}>No Label Yet</Text>
       <Text style={styles.emptyText}>
         Create your first label to start tracking your transactions
@@ -133,7 +141,7 @@ export default function LabelListScreen() {
     <View style={styles.container}>
       <FlatList
         data={labels}
-        renderItem={renderWalletCard}
+        renderItem={renderLabelCard}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
@@ -184,7 +192,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginBottom: 4,
   },
-  walletCount: {
+  labelCount: {
     fontSize: 14,
     color: "#c7d2fe",
   },
@@ -225,17 +233,17 @@ const styles = StyleSheet.create({
   cardRight: {
     alignItems: "flex-end",
   },
-  walletName: {
+  labelName: {
     fontSize: 16,
     fontWeight: "600",
     color: "#1f2937",
   },
-  walletType: {
+  labelType: {
     fontSize: 12,
     color: "#6b7280",
     marginTop: 2,
   },
-  walletAmount: {
+  labelAmount: {
     fontSize: 18,
     fontWeight: "700",
     color: "#1f2937",
@@ -255,7 +263,7 @@ const styles = StyleSheet.create({
     color: "#10b981",
     fontWeight: "600",
   },
-  walletDescription: {
+  labelDescription: {
     fontSize: 13,
     color: "#6b7280",
     marginTop: 8,
