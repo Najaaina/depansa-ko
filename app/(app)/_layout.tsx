@@ -10,6 +10,14 @@ export default function AppLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen
+        name="notification-settings"
+        options={{
+          headerShown: true,
+          headerTitle: "Notification Settings",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/index"
         options={{
           headerShown: true,
@@ -68,6 +76,22 @@ export default function AppLayout() {
           headerTitle: "Edit Transaction",
           headerBackTitle: "Back",
           presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="wallet/[id]/calendar"
+        options={{
+          headerShown: true,
+          headerTitle: "Calendar",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="wallet/[id]/statistics"
+        options={{
+          headerShown: true,
+          headerTitle: "Statistics",
+          headerBackTitle: "Back",
         }}
       />
     </Stack>

@@ -4,8 +4,8 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Alert,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -13,16 +13,16 @@ import { transactionService } from "@/services/transaction.service";
 import { labelService } from "@/services/label.service";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Toggle } from "@/components/ui/toggle";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Icon } from "@/components/ui/icon";
 import type { Label } from "@/types/label.types";
 import type { TransactionType } from "@/types/transaction.types";
-
-const TRANSACTION_TYPES: { value: TransactionType; label: string; color: string; icon: string }[] = [
-  { value: "OUT", label: "Expense", color: "#ef4444", icon: "arrow-up-outline" },
-  { value: "IN", label: "Income", color: "#10b981", icon: "arrow-down-outline" },
-];
+import { AlertCircle, CheckCircle2 } from "lucide-react-native";
 
 export default function AddTransactionScreen() {
-  const { walletId } = useLocalSearchParams<{ walletId: string }>();
+  const { id: walletId } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
   
   const [amount, setAmount] = useState("");
@@ -33,6 +33,9 @@ export default function AddTransactionScreen() {
   const [labels, setLabels] = useState<Label[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingLabels, setIsLoadingLabels] = useState(true);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadLabels();
@@ -49,6 +52,7 @@ export default function AddTransactionScreen() {
       }
     } catch (error) {
       console.error("Error loading labels:", error);
+      setErrorMessage("Failed to load labels");
     } finally {
       setIsLoadingLabels(false);
     }
@@ -62,22 +66,39 @@ export default function AddTransactionScreen() {
     );
   };
 
+  const handleDateChange = (days: number) => {
+    const newDate = new Date();
+    newDate.setDate(newDate.getDate() + days);
+    setDate(newDate.toISOString().split("T")[0]);
+    setShowDatePicker(false);
+  };
+
+  const formatDisplayDate = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { 
+      weekday: "short", 
+      year: "numeric", 
+      month: "short", 
+      day: "numeric" 
+    });
+  };
+
   const handleSubmit = async () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
     if (!user?.id || !walletId) {
-      Alert.alert("Error", "Missing required information");
+      setErrorMessage("Missing required information. Please try logging in again.");
       return;
     }
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      Alert.alert("Error", "Please enter a valid amount");
+      setErrorMessage("Please enter a valid amount greater than 0");
       return;
     }
 
-    if (selectedLabels.length === 0) {
-      Alert.alert("Error", "Please select at least one label");
-      return;
-    }
+    // Labels are optional for now - backend may require them later
 
     setIsLoading(true);
     try {
@@ -90,11 +111,30 @@ export default function AddTransactionScreen() {
         labels: selectedLabels.map(id => ({ id })),
       });
       
-      Alert.alert("Success", "Transaction created successfully", [
-        { text: "OK", onPress: () => router.back() }
-      ]);
+      setSuccessMessage(
+        type === "IN" 
+          ? `Income of $${parsedAmount.toFixed(2)} has been added to your wallet.`
+          : `Expense of $${parsedAmount.toFixed(2)} has been recorded.`
+      );
+      
+      setTimeout(() => {
+        router.back();
+      }, 2000);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to create transaction");
+      console.error("Transaction error:", error);
+      const errorMsg = error.message || "Failed to create transaction";
+      
+      if (errorMsg.includes("label")) {
+        setErrorMessage("One or more labels are invalid. Please refresh and try again.");
+      } else if (error.status === 401) {
+        setErrorMessage("Please log in again.");
+      } else if (error.status === 404) {
+        setErrorMessage("Wallet not found. Please refresh and try again.");
+      } else if (error.status === 500) {
+        setErrorMessage("Something went wrong on the server. Please try again later.");
+      } else {
+        setErrorMessage(errorMsg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -103,26 +143,31 @@ export default function AddTransactionScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.form}>
+        {successMessage && (
+          <Alert icon={CheckCircle2} variant="default" className="mb-4 bg-green-50 border-green-200">
+            <AlertTitle>Success!</AlertTitle>
+            <AlertDescription>{successMessage}</AlertDescription>
+          </Alert>
+        )}
+
+        {errorMessage && (
+          <Alert icon={AlertCircle} variant="destructive" className="mb-4">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
+
         <Text style={styles.label}>Transaction Type</Text>
-        <View style={styles.typeContainer}>
-          {TRANSACTION_TYPES.map((t) => (
-            <TouchableOpacity
-              key={t.value}
-              style={[
-                styles.typeButton,
-                type === t.value && { backgroundColor: t.color },
-              ]}
-              onPress={() => setType(t.value)}
-            >
-              <Text style={[
-                styles.typeLabel,
-                type === t.value && { color: "#fff" },
-              ]}>
-                {t.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <Tabs value={type} onValueChange={(val) => setType(val as TransactionType)} className="w-full mb-4">
+          <TabsList className="w-full">
+            <TabsTrigger value="OUT" className="flex-1">
+              <Text className={type === "OUT" ? "text-white" : "text-red-500"}>Expense</Text>
+            </TabsTrigger>
+            <TabsTrigger value="IN" className="flex-1">
+              <Text className={type === "IN" ? "text-white" : "text-green-500"}>Income</Text>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <Input
           label="Amount"
@@ -139,41 +184,52 @@ export default function AddTransactionScreen() {
           placeholder="Enter description"
         />
 
-        <Input
-          label="Date"
-          value={date}
-          onChangeText={setDate}
-          placeholder="YYYY-MM-DD"
-        />
+        <Text style={styles.label}>Date</Text>
+        <TouchableOpacity 
+          style={styles.dateButton}
+          onPress={() => setShowDatePicker(!showDatePicker)}
+        >
+          <Text style={styles.dateText}>{formatDisplayDate(date)}</Text>
+        </TouchableOpacity>
 
-        <Text style={styles.label}>Labels (select at least one)</Text>
+        {showDatePicker && (
+          <View style={styles.datePickerContainer}>
+            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(0)}>
+              <Text style={styles.dateOptionText}>Today</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(-1)}>
+              <Text style={styles.dateOptionText}>Yesterday</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(-7)}>
+              <Text style={styles.dateOptionText}>Last Week</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(-30)}>
+              <Text style={styles.dateOptionText}>Last Month</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <Text style={styles.label}>Labels (optional)</Text>
         {isLoadingLabels ? (
           <Text>Loading labels...</Text>
         ) : labels.length === 0 ? (
           <View style={styles.noLabels}>
             <Text style={styles.noLabelsText}>No labels available</Text>
-            <Text style={styles.noLabelsHint}>Create labels first in the app</Text>
+            <Text style={styles.noLabelsHint}>You can add a transaction without labels</Text>
           </View>
         ) : (
           <View style={styles.labelsContainer}>
             {labels.map((label) => (
-              <TouchableOpacity
+              <Toggle
                 key={label.id}
-                style={[
-                  styles.labelChip,
-                  selectedLabels.includes(label.id!) && styles.labelChipSelected,
-                  { borderColor: label.color || "#3b82f6" },
-                ]}
-                onPress={() => toggleLabel(label.id!)}
+                pressed={selectedLabels.includes(label.id!)}
+                onPressedChange={() => toggleLabel(label.id!)}
+                variant="outline"
+                className="flex-row items-center gap-2"
               >
                 <View style={[styles.labelDot, { backgroundColor: label.color || "#3b82f6" }]} />
-                <Text style={[
-                  styles.labelText,
-                  selectedLabels.includes(label.id!) && styles.labelTextSelected,
-                ]}>
-                  {label.name}
-                </Text>
-              </TouchableOpacity>
+                <Text>{label.name}</Text>
+              </Toggle>
             ))}
           </View>
         )}
@@ -204,55 +260,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 16,
   },
-  typeContainer: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
-  },
-  typeButton: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#fff",
-  },
-  typeLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#374151",
-  },
   labelsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
   },
-  labelChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 2,
-    backgroundColor: "#fff",
-  },
-  labelChipSelected: {
-    backgroundColor: "#f3f4f6",
-  },
   labelDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 6,
-  },
-  labelText: {
-    fontSize: 14,
-    color: "#374151",
-  },
-  labelTextSelected: {
-    fontWeight: "600",
   },
   noLabels: {
     padding: 20,
@@ -268,5 +284,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#9ca3af",
     marginTop: 4,
+  },
+  dateButton: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  dateText: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  datePickerContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 8,
+    overflow: "hidden",
+  },
+  dateOption: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+  },
+  dateOptionText: {
+    fontSize: 14,
+    color: "#374151",
   },
 });

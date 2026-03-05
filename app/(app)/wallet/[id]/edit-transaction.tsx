@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   Alert,
   StyleSheet,
 } from "react-native";
@@ -13,13 +12,10 @@ import { transactionService } from "@/services/transaction.service";
 import { labelService } from "@/services/label.service";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Toggle } from "@/components/ui/toggle";
 import type { Label } from "@/types/label.types";
-import type { TransactionType, Transaction } from "@/types/transaction.types";
-
-const TRANSACTION_TYPES: { value: TransactionType; label: string; color: string }[] = [
-  { value: "OUT", label: "Expense", color: "#ef4444" },
-  { value: "IN", label: "Income", color: "#10b981" },
-];
+import type { TransactionType } from "@/types/transaction.types";
 
 export default function EditTransactionScreen() {
   const { walletId, transactionId } = useLocalSearchParams<{ walletId: string; transactionId: string }>();
@@ -73,11 +69,6 @@ export default function EditTransactionScreen() {
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       Alert.alert("Error", "Please enter a valid amount");
-      return;
-    }
-
-    if (selectedLabels.length === 0) {
-      Alert.alert("Error", "Please select at least one label");
       return;
     }
 
@@ -136,25 +127,16 @@ export default function EditTransactionScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.form}>
         <Text style={styles.label}>Transaction Type</Text>
-        <View style={styles.typeContainer}>
-          {TRANSACTION_TYPES.map((t) => (
-            <TouchableOpacity
-              key={t.value}
-              style={[
-                styles.typeButton,
-                type === t.value && { backgroundColor: t.color },
-              ]}
-              onPress={() => setType(t.value)}
-            >
-              <Text style={[
-                styles.typeLabel,
-                type === t.value && { color: "#fff" },
-              ]}>
-                {t.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <Tabs value={type} onValueChange={(val) => setType(val as TransactionType)} className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="OUT" className="flex-1">
+              <Text className={type === "OUT" ? "text-white" : "text-red-500"}>Expense</Text>
+            </TabsTrigger>
+            <TabsTrigger value="IN" className="flex-1">
+              <Text className={type === "IN" ? "text-white" : "text-green-500"}>Income</Text>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <Input
           label="Amount"
@@ -178,7 +160,7 @@ export default function EditTransactionScreen() {
           placeholder="YYYY-MM-DD"
         />
 
-        <Text style={styles.label}>Labels (select at least one)</Text>
+        <Text style={styles.label}>Labels (optional)</Text>
         {isLoadingLabels ? (
           <Text>Loading labels...</Text>
         ) : labels.length === 0 ? (
@@ -188,23 +170,16 @@ export default function EditTransactionScreen() {
         ) : (
           <View style={styles.labelsContainer}>
             {labels.map((label) => (
-              <TouchableOpacity
+              <Toggle
                 key={label.id}
-                style={[
-                  styles.labelChip,
-                  selectedLabels.includes(label.id!) && styles.labelChipSelected,
-                  { borderColor: label.color || "#3b82f6" },
-                ]}
-                onPress={() => toggleLabel(label.id!)}
+                pressed={selectedLabels.includes(label.id!)}
+                onPressedChange={() => toggleLabel(label.id!)}
+                variant="outline"
+                className="flex-row items-center gap-2"
               >
                 <View style={[styles.labelDot, { backgroundColor: label.color || "#3b82f6" }]} />
-                <Text style={[
-                  styles.labelText,
-                  selectedLabels.includes(label.id!) && styles.labelTextSelected,
-                ]}>
-                  {label.name}
-                </Text>
-              </TouchableOpacity>
+                <Text>{label.name}</Text>
+              </Toggle>
             ))}
           </View>
         )}
@@ -243,55 +218,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 16,
   },
-  typeContainer: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
-  },
-  typeButton: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#fff",
-  },
-  typeLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#374151",
-  },
   labelsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
   },
-  labelChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 2,
-    backgroundColor: "#fff",
-  },
-  labelChipSelected: {
-    backgroundColor: "#f3f4f6",
-  },
   labelDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 6,
-  },
-  labelText: {
-    fontSize: 14,
-    color: "#374151",
-  },
-  labelTextSelected: {
-    fontWeight: "600",
   },
   noLabels: {
     padding: 20,

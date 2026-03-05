@@ -224,6 +224,21 @@ export default function WalletDetailScreen() {
 
       <View style={styles.actions}>
         <Button
+          title="Calendar"
+          onPress={() => router.push(`/wallet/${id}/calendar`)}
+          variant="outline"
+          className="flex-1"
+        />
+        <Button
+          title="Statistics"
+          onPress={() => router.push(`/wallet/${id}/statistics`)}
+          variant="outline"
+          className="flex-1"
+        />
+      </View>
+
+      <View style={styles.actions}>
+        <Button
           title="Edit Wallet"
           onPress={() => router.push(`/wallet/${id}/edit`)}
           className="flex-1"
