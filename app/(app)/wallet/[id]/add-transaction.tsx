@@ -1,22 +1,14 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { transactionService } from "@/services/transaction.service";
 import { labelService } from "@/services/label.service";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toggle } from "@/components/ui/toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Icon } from "@/components/ui/icon";
 import type { Label } from "@/types/label.types";
 import type { TransactionType } from "@/types/transaction.types";
 import { AlertCircle, CheckCircle2 } from "lucide-react-native";
@@ -98,11 +90,10 @@ export default function AddTransactionScreen() {
       return;
     }
 
-    // Labels are required by backend - use default "General" label if none selected
-    // TODO: Remove this when backend allows transactions without labels
+    // Use default label if none selected (backend requires labels)
     const transactionLabels = selectedLabels.length > 0 
       ? selectedLabels.map(id => ({ id }))
-      : [{ id: "03b0d3f9-14f1-47bd-a3c7-a3225ed93b7e" }]; // Default label for now
+      : [{ id: "03b0d3f9-14f1-47bd-a3c7-a3225ed93b7e" }];
 
     setIsLoading(true);
     try {
