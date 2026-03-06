@@ -120,11 +120,11 @@ export default function LablelDetailScreen() {
   }
 
   const totalIncome = transactions
-    .filter((t) => t.type === "INCOME")
+    .filter((t) => t.type === "IN")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalExpense = transactions
-    .filter((t) => t.type === "EXPENSE")
+    .filter((t) => t.type === "OUT")
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
@@ -205,20 +205,18 @@ export default function LablelDetailScreen() {
                     styles.transactionIcon,
                     {
                       backgroundColor:
-                        transaction.type === "INCOME" ? "#d1fae5" : "#fee2e2",
+                        transaction.type === "IN" ? "#d1fae5" : "#fee2e2",
                     },
                   ]}
                 >
                   <Ionicons
                     name={
-                      (transaction.type === "INCOME"
+                      (transaction.type === "IN"
                         ? "arrow-down-outline"
                         : "arrow-up-outline") as any
                     }
                     size={16}
-                    color={
-                      transaction.type === "INCOME" ? "#10b981" : "#ef4444"
-                    }
+                    color={transaction.type === "IN" ? "#10b981" : "#ef4444"}
                   />
                 </View>
                 <View>
@@ -234,12 +232,11 @@ export default function LablelDetailScreen() {
                 style={[
                   styles.transactionAmount,
                   {
-                    color:
-                      transaction.type === "INCOME" ? "#10b981" : "#ef4444",
+                    color: transaction.type === "IN" ? "#10b981" : "#ef4444",
                   },
                 ]}
               >
-                {transaction.type === "INCOME" ? "+" : "-"}
+                {transaction.type === "IN" ? "+" : "-"}
                 {formatAmount(transaction.amount)}
               </Text>
             </View>
