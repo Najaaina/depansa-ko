@@ -23,10 +23,6 @@ import EyeIcon from "@/components/icons/EyeIcon";
 import { ShieldIcon } from "lucide-react-native";
 import getPasswordStrength from "@/components/utils/PasswordStrength";
 
-// ── Password strength ─────────────────────────────────────────────────────────
-
-
-
 export default function ResetPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
