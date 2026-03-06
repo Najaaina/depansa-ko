@@ -37,7 +37,8 @@ class LabelService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw {
-          message: errorData.message || `HTTP error! status: ${response.status}`,
+          message:
+            errorData.message || `HTTP error! status: ${response.status}`,
           status: response.status,
         } as ApiError;
       }
@@ -57,13 +58,18 @@ class LabelService {
     accountId: string,
     page: number = 1,
     pageSize: number = 20,
-  ): Promise<GetAllLabelsResponse> {
+  ): Promise<GetAllLabelResponse> {
     const params = new URLSearchParams();
     params.append("page", page.toString());
     params.append("pageSize", pageSize.toString());
-    
+
     const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}?${params.toString()}`;
-    return await this.fetchApi<GetAllLabelsResponse>(endpoint);
+    return await this.fetchApi<GetAllLabelResponse>(endpoint);
+  }
+
+  async getOne(accountId: string, labelId: string): Promise<Label> {
+    const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${labelId}`;
+    return await this.fetchApi<Label>(endpoint);
   }
 
   async create(accountId: string, label: Label): Promise<Label> {
