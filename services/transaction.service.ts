@@ -16,7 +16,7 @@ class TransactionService {
   ): Promise<T> {
     try {
       const apiKey = await storageService.getApiKey();
-      
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: {
           "Content-Type": "application/json",
@@ -55,11 +55,12 @@ class TransactionService {
     const params = new URLSearchParams();
     params.append("page", page.toString());
     params.append("pageSize", pageSize.toString());
-    
+
     if (filters.type) params.append("type", filters.type);
     if (filters.walletId) params.append("walletId", filters.walletId);
-    if (filters.startDate) params.append("startDate", filters.startDate);
-    if (filters.endDate) params.append("endDate", filters.endDate);
+    if (filters.startDate) params.append("startingDate", filters.startDate);
+    if (filters.endDate) params.append("endingDate", filters.endDate);
+    if (filters.labelId) params.append("labelId", filters.labelId.toString());
 
     const endpoint = `${API_ENDPOINTS.TRANSACTIONS.replace(":accountId", accountId)}?${params.toString()}`;
     return await this.fetchApi<GetAllTransactionsResponse>(endpoint);
@@ -75,10 +76,28 @@ class TransactionService {
     const params = new URLSearchParams();
     params.append("page", String(page));
     params.append("walletId", walletId);
-    
+
     if (filters.type) params.append("type", filters.type);
     if (filters.startDate) params.append("startingDate", filters.startDate);
     if (filters.endDate) params.append("endingDate", filters.endDate);
+
+    const endpoint = `${API_ENDPOINTS.TRANSACTIONS.replace(":accountId", accountId)}?${params.toString()}`;
+    return await this.fetchApi<GetAllTransactionsResponse>(endpoint);
+  }
+
+  async getByLabel(
+    accountId: string,
+    labelId: string[],
+    filters: TransactionFilters = {},
+    page: number = 1,
+    pageSize: number = 20,
+  ): Promise<GetAllTransactionsResponse> {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("pageSize", pageSize.toString());
+    params.append("labelId", labelId.toString());
+
+    if (filters.type) params.append("type", filters.type);
 
     const endpoint = `${API_ENDPOINTS.TRANSACTIONS.replace(":accountId", accountId)}?${params.toString()}`;
     return await this.fetchApi<GetAllTransactionsResponse>(endpoint);

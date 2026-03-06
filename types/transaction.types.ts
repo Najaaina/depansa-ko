@@ -31,6 +31,7 @@ export interface TransactionFilters {
   walletId?: string;
   startDate?: string;
   endDate?: string;
+  labelId?:string[];
 }
 
 export interface GetAllTransactionsResponse {
