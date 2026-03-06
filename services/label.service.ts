@@ -1,6 +1,12 @@
 import { API_BASE_URL, API_ENDPOINTS } from "@/constants/api.config";
 import { storageService } from "@/services/storage.service";
-import type { Label, GetAllLabelsResponse, ApiError } from "@/types/label.types";
+import type {
+  Label,
+  GetAllLabelResponse,
+  ApiError,
+  CreationLabel,
+  UpdateLabel,
+} from "@/types/lablel.types";
 
 class LabelService {
   private async fetchApi<T>(
@@ -9,20 +15,30 @@ class LabelService {
   ): Promise<T> {
     try {
       const apiKey = await storageService.getApiKey();
-      
+      console.log("API Key retrieved:", apiKey ? "exists" : "null");
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...options.headers,
+      };
+
+      if (apiKey) {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+        console.log("Sending request to:", endpoint);
+      } else {
+        console.warn("No API key found!");
+      }
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          ...options.headers,
-        },
+        headers,
         ...options,
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw {
-          message: errorData.message || `HTTP error! status: ${response.status}`,
+          message:
+            errorData.message || `HTTP error! status: ${response.status}`,
           status: response.status,
         } as ApiError;
       }
@@ -42,13 +58,18 @@ class LabelService {
     accountId: string,
     page: number = 1,
     pageSize: number = 20,
-  ): Promise<GetAllLabelsResponse> {
+  ): Promise<GetAllLabelResponse> {
     const params = new URLSearchParams();
     params.append("page", page.toString());
     params.append("pageSize", pageSize.toString());
-    
+
     const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}?${params.toString()}`;
-    return await this.fetchApi<GetAllLabelsResponse>(endpoint);
+    return await this.fetchApi<GetAllLabelResponse>(endpoint);
+  }
+
+  async getOne(accountId: string, labelId: string): Promise<Label> {
+    const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${labelId}`;
+    return await this.fetchApi<Label>(endpoint);
   }
 
   async create(accountId: string, label: Label): Promise<Label> {
@@ -59,8 +80,7 @@ class LabelService {
     });
   }
 
-  async update(accountId: string, label: Label): Promise<Label> {
-    if (!label.id) throw new Error("Label ID is required for update");
+  async update(accountId: string, label: UpdateLabel): Promise<Label> {
     const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${label.id}`;
     return await this.fetchApi<Label>(endpoint, {
       method: "PUT",
@@ -68,10 +88,10 @@ class LabelService {
     });
   }
 
-  async delete(accountId: string, labelId: string): Promise<void> {
-    const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${labelId}`;
-    await this.fetchApi<void>(endpoint, {
-      method: "DELETE",
+  async archive(accountId: string, labelId: string): Promise<Label> {
+    const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${labelId}/archive`;
+    return await this.fetchApi<Label>(endpoint, {
+      method: "POST",
     });
   }
 }

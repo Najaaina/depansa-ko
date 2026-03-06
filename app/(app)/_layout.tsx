@@ -34,10 +34,26 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="label/index"
+        options={{
+          headerShown: true,
+          headerTitle: "My Labels",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/index"
         options={{
           headerShown: true,
           headerTitle: "My Wallets",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="label/create"
+        options={{
+          headerShown: true,
+          headerTitle: "Create Label",
           headerBackTitle: "Back",
         }}
       />
@@ -59,12 +75,28 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="label/[id]"
+        options={{
+          headerShown: true,
+          headerTitle: "Label Details",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/[id]/edit"
         options={{
           headerShown: true,
           headerTitle: "Edit Wallet",
           headerBackTitle: "Back",
           presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="label/[id]/edit"
+        options={{
+          headerShown: true,
+          headerTitle: "Edit label",
+          headerBackTitle: "Back",
         }}
       />
       <Stack.Screen
