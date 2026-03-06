@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Path, Rect, Circle } from "react-native-svg";
 import WalletIcon from "@/components/icons/WalletIcon";
+import { Ionicons } from "@expo/vector-icons";
 import ChevronRight from "@/components/icons/ChevronRight";
 import CreateWalletIcon from "@/components/icons/CreateWalletIcon";
 import SignOutIcon from "@/components/icons/SignOutIcon";
@@ -96,16 +97,28 @@ export default function HomeScreen() {
               <ChevronRight color="#3b82f6" />
             </LinearGradient>
           </TouchableOpacity>
+
+          {/* My Labels */}
+          <TouchableOpacity
+            onPress={() => router.push("/label")}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={["#f8e8e8", "#f5e2e3"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.actionCard}
+            >
+              <View style={styles.actionIcon}>
+                <Ionicons name="pricetag-outline" size={24} color="#e02323" />
+              </View>
+              <Text style={[styles.actionLabel, { color: "#cf4f4f" }]}>
+                My Labels
+              </Text>
+              <ChevronRight color="#6c5ce7" />
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
-
-        <Button title="My Labels" onPress={() => router.push("/label")} />
-
-        <Button title="My Wallets" onPress={() => router.push("/wallet")} />
-
-        <Button
-          title="Create Wallet"
-          onPress={() => router.push("/wallet/create")}
-        />
 
         {/* Sign Out */}
         <TouchableOpacity
