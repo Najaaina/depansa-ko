@@ -72,6 +72,17 @@ class AuthService {
     });
     return this.mapRegisterResponse(data);
   }
+
+  async resetPassword(
+    username: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    await this.fetchApi("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ username, oldPassword, newPassword }),
+    });
+  }
 }
 
 export const authService = new AuthService();

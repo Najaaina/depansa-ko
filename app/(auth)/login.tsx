@@ -118,6 +118,15 @@ export default function LoginScreen() {
             disabled={!isFormValid()}
           />
 
+         <TouchableOpacity
+            onPress={() => router.push("/(auth)/reset-password")}
+            style={{ marginTop: 8, marginBottom: 8, alignItems: "center" }}
+          >
+          <Text style={{ fontSize: 13, color: "#6366f1", fontWeight: "600" }}>
+            Forgot Password?
+          </Text>
+        </TouchableOpacity>
+          
           <View className="flex-row items-center my-5">
             <View className="flex-1 h-px bg-gray-200" />
             <Text className="mx-4 text-gray-400 text-sm">or</Text>

@@ -13,6 +13,16 @@ export default function AuthLayout() {
     >
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
+      <Stack.Screen
+        name="reset-password"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerTransparent: true,
+          headerTintColor: "#374151",
+          headerShadowVisible: false,
+        }}
+      />
     </Stack>
   );
 }

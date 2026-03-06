@@ -9,4 +9,5 @@ export const API_ENDPOINTS = {
   TRANSACTIONS: "/account/:accountId/transaction",
   LABELS: "/account/:accountId/label",
   GOALS: "/account/:accountId/goal",
+  RESET_PASSWORD: "/auth/reset-password",
 } as const;

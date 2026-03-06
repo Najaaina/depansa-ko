@@ -44,3 +44,27 @@ export const registerSchema = z
   });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+
+export const resetPasswordSchema = z.object({
+  username: z
+    .string()
+    .min(4, "Username must be at least 4 characters")
+    .max(20, "Username must not exceed 20 characters"),
+  oldPassword: z
+    .string()
+    .min(8, "Password must be at least 8 characters"),
+  newPassword: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(100, "Password is too long")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
+      message: "Password must contain uppercase, lowercase, and number",
+    }),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
