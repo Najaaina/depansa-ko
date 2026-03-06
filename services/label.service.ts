@@ -4,7 +4,8 @@ import type {
   Label,
   GetAllLabelResponse,
   ApiError,
-  CreationLabel
+  CreationLabel,
+  UpdateLabel,
 } from "@/types/lablel.types";
 
 class LabelService {
@@ -15,19 +16,19 @@ class LabelService {
     try {
       const apiKey = await storageService.getApiKey();
       console.log("API Key retrieved:", apiKey ? "exists" : "null");
-      
+
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
         ...options.headers,
       };
-      
+
       if (apiKey) {
         headers["Authorization"] = `Bearer ${apiKey}`;
         console.log("Sending request to:", endpoint);
       } else {
         console.warn("No API key found!");
       }
-      
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers,
         ...options,
@@ -73,8 +74,7 @@ class LabelService {
     });
   }
 
-  async update(accountId: string, label: Label): Promise<Label> {
-    if (!label.id) throw new Error("Label ID is required for update");
+  async update(accountId: string, label: UpdateLabel): Promise<Label> {
     const endpoint = `${API_ENDPOINTS.LABELS.replace(":accountId", accountId)}/${label.id}`;
     return await this.fetchApi<Label>(endpoint, {
       method: "PUT",

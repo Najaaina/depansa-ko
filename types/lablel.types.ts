@@ -8,7 +8,19 @@ export interface Label extends CreationLabel {
   id: string;
 }
 
-export type LabelType = "WORK"|"SCHOOL"|"TRANSPORT"|"HEALTH"| "MISC"| "FOOD"|"ENTERTAINEMENT"|"SHOPPING";
+export interface UpdateLabel extends Label {
+  accountId: string;
+}
+
+export type LabelType =
+  | "WORK"
+  | "SCHOOL"
+  | "TRANSPORT"
+  | "HEALTH"
+  | "MISC"
+  | "FOOD"
+  | "ENTERTAINEMENT"
+  | "SHOPPING";
 
 // export interface UpdateWallet extends CreationWallet {
 //   id: string;

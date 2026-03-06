@@ -92,6 +92,14 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="label/[id]/edit"
+        options={{
+          headerShown: true,
+          headerTitle: "Edit label",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/[id]/automatic-income"
         options={{
           headerShown: true,
