@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Button,
   StyleSheet,
   ScrollView,
 } from "react-native";
@@ -15,13 +16,10 @@ import ChevronRight from "@/components/icons/ChevronRight";
 import CreateWalletIcon from "@/components/icons/CreateWalletIcon";
 import SignOutIcon from "@/components/icons/SignOutIcon";
 
-
 export default function HomeScreen() {
   const { user, logout, isLoading } = useAuth();
 
-  const shortId = user?.id
-    ? String(user.id).slice(0, 10) + "..."
-    : "—";
+  const shortId = user?.id ? String(user.id).slice(0, 10) + "..." : "—";
 
   return (
     <LinearGradient
@@ -37,8 +35,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>
-            Welcome to{" "}
-            <Text style={styles.headerBold}>Depansa</Text>
+            Welcome to <Text style={styles.headerBold}>Depansa</Text>
           </Text>
           <Text style={styles.headerSub}>You're successfully logged in</Text>
         </View>
@@ -101,25 +98,17 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-        <Button
-          title="My Labels"
-          onPress={() => router.push("/label")}
-        />
+        <Button title="My Labels" onPress={() => router.push("/label")} />
 
-        <Button
-          title="My Wallets"
-          onPress={() => router.push("/wallet")}
-        />
-        
+        <Button title="My Wallets" onPress={() => router.push("/wallet")} />
+
         <Button
           title="Create Wallet"
           onPress={() => router.push("/wallet/create")}
         />
-        
+
         {/* Sign Out */}
-        <Button
-          title="Sign Out"
+        <TouchableOpacity
           onPress={logout}
           disabled={isLoading}
           style={styles.signOut}
