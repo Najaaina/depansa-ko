@@ -35,7 +35,7 @@ export default function LoginScreen() {
     getValues,
   } = useFormValidation({
     schema: loginSchema,
-    initialValues: { username: "", password: "" },
+    initialValues: { email: "", password: "" },
   });
 
   const { request, promptAsync, isLoading: googleLoading } = useGoogleAuth(
@@ -58,7 +58,7 @@ export default function LoginScreen() {
     try {
       const values = getValues();
       await login({
-        username: values.username || "",
+        email: values.email || "",
         password: values.password || "",
       });
     } catch (err) {
@@ -77,7 +77,7 @@ export default function LoginScreen() {
       >
         <View className="flex items-start mb-10 text-left h-[12vh] gap-2">
           <Text className="w-full text-5xl font-bold text-gray-800">
-            Hellooo :>
+            Hellooo :&gt;
           </Text>
           <Text className="text-base text-gray-500">
             Sign in to continue to track your Depansa
@@ -86,16 +86,17 @@ export default function LoginScreen() {
 
         <View className="w-full">
           <Input
-            label="Username"
-            placeholder="Enter your username"
-            value={fields.username?.value || ""}
-            onChangeText={(value) => setFieldValue("username", value)}
-            onBlur={() => setFieldTouched("username")}
-            error={fields.username?.error}
-            touched={fields.username?.touched}
-            icon="person-outline"
+            label="Email"
+            placeholder="Enter your email"
+            value={fields.email?.value || ""}
+            onChangeText={(value) => setFieldValue("email", value)}
+            onBlur={() => setFieldTouched("email")}
+            error={fields.email?.error}
+            touched={fields.email?.touched}
+            icon="mail-outline"
+            keyboardType="email-address"
             autoCapitalize="none"
-            autoComplete="username"
+            autoComplete="email"
           />
           <Input
             label="Password"

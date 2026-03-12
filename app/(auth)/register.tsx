@@ -60,6 +60,7 @@ export default function RegisterScreen() {
       const values = getValues();
       await register({
         username: values.username || "",
+        email: values.email || "",
         password: values.password || "",
       });
       Alert.alert(
