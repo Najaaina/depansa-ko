@@ -42,17 +42,43 @@ export default function LablelDetailScreen() {
       const labelData = await labelService.getOne(user.id, id);
       let transactionsData: Transaction[] = [];
       try {
-        const response = await transactionService.getByLabel(user.id, [id]);
+        const response = await transactionService.getAll(user.id);
+        console.log(
+          `here is all the transaction : ${Object.entries(response)}`,
+        );
         if (Array.isArray(response)) {
-          transactionsData = response;
+          transactionsData = response.filter((transaction: Transaction) => {
+            if (transaction.labels != undefined) {
+              for (const item of transaction.labels) {
+                if (item.name == labelData.name) {
+                  return true;
+                }
+              }
+            }
+            return false;
+          });
         } else if (response && Array.isArray(response.values)) {
-          transactionsData = response.values;
+          transactionsData = response.values.filter(
+            (transaction: Transaction) => {
+              if (transaction.labels != undefined) {
+                for (const item of transaction.labels) {
+                  if (item.name == labelData.name) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            },
+          );
         }
       } catch (txError) {
         console.error("Error fetching transactions:", txError);
       }
       setLabel(labelData);
       setTransactions(transactionsData);
+
+      console.log(`here is all the transaction for ${labelData?.name}:`);
+      console.log(transactionsData);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to load labels");
     } finally {
