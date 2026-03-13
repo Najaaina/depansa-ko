@@ -2,10 +2,9 @@ import { z } from "zod";
 
 // Login schemas
 export const loginSchema = z.object({
-  username: z
-    .string()
-    .min(4, "Username must be at least 4 characters")
-    .max(20, "Username must not exceed 20 characters"),
+  email: z
+      .email({ message: "Please enter a valid email address" })
+      .min(1, "Email is required"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
