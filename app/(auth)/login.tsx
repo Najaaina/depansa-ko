@@ -123,7 +123,7 @@ export default function LoginScreen() {
             style={{ marginTop: 8, marginBottom: 8, alignItems: "center" }}
           >
           <Text style={{ fontSize: 13, color: "#6366f1", fontWeight: "600" }}>
-            Forgot Password?
+            Change Password?
           </Text>
         </TouchableOpacity>
           

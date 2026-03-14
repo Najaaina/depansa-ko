@@ -28,16 +28,33 @@ export default function ResetPasswordScreen() {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
-  const { fields, setFieldValue, setFieldTouched, validateForm, isFormValid, getValues } =
-    useFormValidation({
-      schema: resetPasswordSchema,
-      initialValues: { username: "", oldPassword: "", newPassword: "", confirmPassword: "" },
-    });
+  const {
+    fields,
+    setFieldValue,
+    setFieldTouched,
+    validateForm,
+    isFormValid,
+    getValues,
+  } = useFormValidation({
+    schema: resetPasswordSchema,
+    initialValues: {
+      email: "",
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
 
   const newPasswordValue = fields.newPassword?.value || "";
   const strength = getPasswordStrength(newPasswordValue);
 
-  const strengthColors = ["#e5e7eb", "#ef4444", "#f59e0b", "#6d28d9", "#059669"];
+  const strengthColors = [
+    "#e5e7eb",
+    "#ef4444",
+    "#f59e0b",
+    "#6d28d9",
+    "#059669",
+  ];
   const activeColor = strengthColors[strength.level];
 
   const handleReset = async () => {
@@ -49,9 +66,9 @@ export default function ResetPasswordScreen() {
     try {
       const values = getValues();
       await authService.resetPassword(
-        values.username || "",
+        values.email || "",
         values.oldPassword || "",
-        values.newPassword || ""
+        values.newPassword || "",
       );
       Alert.alert("Success", "Password updated successfully!", [
         { text: "OK", onPress: () => router.replace("/(auth)/login") },
@@ -87,33 +104,49 @@ export default function ResetPasswordScreen() {
           {/* Header */}
           <Text style={styles.title}>Reset Password</Text>
           <Text style={styles.subtitle}>
-            Enter your details below to secure your{"\n"}finance tracking account.
+            Enter your details below to secure your{"\n"}finance tracking
+            account.
           </Text>
 
-          {/* Username */}
+          {/* Email */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Username</Text>
-            <View style={[styles.inputRow, fields.username?.touched && fields.username?.error ? styles.inputError : null]}>
+            <Text style={styles.fieldLabel}>Email</Text>
+            <View
+              style={[
+                styles.inputRow,
+                fields.email?.touched && fields.email?.error
+                  ? styles.inputError
+                  : null,
+              ]}
+            >
               <PersonIcon />
               <TextInput
                 style={styles.input}
-                placeholder="Enter your username"
+                placeholder="Enter your email"
                 placeholderTextColor="#d1d5db"
                 autoCapitalize="none"
-                value={fields.username?.value || ""}
-                onChangeText={(v) => setFieldValue("username", v)}
-                onBlur={() => setFieldTouched("username")}
+                keyboardType="email-address"
+                value={fields.email?.value || ""}
+                onChangeText={(v) => setFieldValue("email", v)}
+                onBlur={() => setFieldTouched("email")}
               />
             </View>
-            {fields.username?.touched && fields.username?.error ? (
-              <Text style={styles.errorText}>{fields.username.error}</Text>
+            {fields.email?.touched && fields.email?.error ? (
+              <Text style={styles.errorText}>{fields.email.error}</Text>
             ) : null}
           </View>
 
           {/* Current Password */}
           <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>Current Password</Text>
-            <View style={[styles.inputRow, fields.oldPassword?.touched && fields.oldPassword?.error ? styles.inputError : null]}>
+            <View
+              style={[
+                styles.inputRow,
+                fields.oldPassword?.touched && fields.oldPassword?.error
+                  ? styles.inputError
+                  : null,
+              ]}
+            >
               <LockIcon />
               <TextInput
                 style={styles.input}
@@ -124,7 +157,9 @@ export default function ResetPasswordScreen() {
                 onChangeText={(v) => setFieldValue("oldPassword", v)}
                 onBlur={() => setFieldTouched("oldPassword")}
               />
-              <TouchableOpacity onPress={() => setShowOldPassword(!showOldPassword)}>
+              <TouchableOpacity
+                onPress={() => setShowOldPassword(!showOldPassword)}
+              >
                 <EyeIcon visible={showOldPassword} />
               </TouchableOpacity>
             </View>
@@ -136,7 +171,14 @@ export default function ResetPasswordScreen() {
           {/* New Password */}
           <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>New Password</Text>
-            <View style={[styles.inputRow, fields.newPassword?.touched && fields.newPassword?.error ? styles.inputError : null]}>
+            <View
+              style={[
+                styles.inputRow,
+                fields.newPassword?.touched && fields.newPassword?.error
+                  ? styles.inputError
+                  : null,
+              ]}
+            >
               <ShieldIcon />
               <TextInput
                 style={styles.input}
@@ -147,7 +189,9 @@ export default function ResetPasswordScreen() {
                 onChangeText={(v) => setFieldValue("newPassword", v)}
                 onBlur={() => setFieldTouched("newPassword")}
               />
-              <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
+              <TouchableOpacity
+                onPress={() => setShowNewPassword(!showNewPassword)}
+              >
                 <EyeIcon visible={showNewPassword} />
               </TouchableOpacity>
             </View>
@@ -161,7 +205,10 @@ export default function ResetPasswordScreen() {
                       key={i}
                       style={[
                         styles.strengthBar,
-                        { backgroundColor: i <= strength.level ? activeColor : "#e5e7eb" },
+                        {
+                          backgroundColor:
+                            i <= strength.level ? activeColor : "#e5e7eb",
+                        },
                       ]}
                     />
                   ))}
@@ -180,7 +227,14 @@ export default function ResetPasswordScreen() {
           {/* Confirm Password */}
           <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>Confirm New Password</Text>
-            <View style={[styles.inputRow, fields.confirmPassword?.touched && fields.confirmPassword?.error ? styles.inputError : null]}>
+            <View
+              style={[
+                styles.inputRow,
+                fields.confirmPassword?.touched && fields.confirmPassword?.error
+                  ? styles.inputError
+                  : null,
+              ]}
+            >
               <ShieldIcon />
               <TextInput
                 style={styles.input}
@@ -192,8 +246,11 @@ export default function ResetPasswordScreen() {
                 onBlur={() => setFieldTouched("confirmPassword")}
               />
             </View>
-            {fields.confirmPassword?.touched && fields.confirmPassword?.error ? (
-              <Text style={styles.errorText}>{fields.confirmPassword.error}</Text>
+            {fields.confirmPassword?.touched &&
+            fields.confirmPassword?.error ? (
+              <Text style={styles.errorText}>
+                {fields.confirmPassword.error}
+              </Text>
             ) : null}
           </View>
 
@@ -204,7 +261,10 @@ export default function ResetPasswordScreen() {
             onPress={handleReset}
             disabled={isLoading || !isFormValid()}
             activeOpacity={0.85}
-            style={[styles.btnWrapper, (!isFormValid() || isLoading) && styles.btnDisabled]}
+            style={[
+              styles.btnWrapper,
+              (!isFormValid() || isLoading) && styles.btnDisabled,
+            ]}
           >
             <LinearGradient
               colors={["#7c3aed", "#6d28d9"]}

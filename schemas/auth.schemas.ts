@@ -46,10 +46,9 @@ export type RegisterFormData = z.infer<typeof registerSchema>;
 
 
 export const resetPasswordSchema = z.object({
-  username: z
+  email: z
     .string()
-    .min(4, "Username must be at least 4 characters")
-    .max(20, "Username must not exceed 20 characters"),
+    .email({ message: "Please enter a valid email address" }),
   oldPassword: z
     .string()
     .min(8, "Password must be at least 8 characters"),
