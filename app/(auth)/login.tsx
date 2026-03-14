@@ -38,11 +38,10 @@ export default function LoginScreen() {
     initialValues: { email: "", password: "" },
   });
 
-  const { request, promptAsync, isLoading: googleLoading } = useGoogleAuth(
-    (user) => loginWithGoogle(user),
-    (message) => Alert.alert("Google Error", message)
-  );
-
+ const { request, promptAsync, isLoading: googleLoading } = useGoogleAuth(
+  (idToken) => loginWithGoogle(idToken),
+  (message) => Alert.alert("Google Error", message)
+);
   useEffect(() => {
     if (error) {
       Alert.alert("Login Error", error);
