@@ -74,13 +74,13 @@ class AuthService {
   }
 
   async resetPassword(
-    username: string,
+    email: string,
     oldPassword: string,
     newPassword: string
   ): Promise<void> {
     await this.fetchApi("/auth/reset-password", {
       method: "POST",
-      body: JSON.stringify({ username, oldPassword, newPassword }),
+      body: JSON.stringify({ email, oldPassword, newPassword }),
     });
   }
 
