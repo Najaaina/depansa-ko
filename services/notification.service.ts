@@ -47,9 +47,9 @@ class NotificationService {
 
   async initialize(): Promise<void> {
     try {
-      this.isAvailable = await loadModules();
-      
-      if (!this.isAvailable) {
+      const modulesLoaded = await loadModules();
+
+      if (!modulesLoaded) {
         console.log("Notifications not available on this platform");
         return;
       }
@@ -80,6 +80,18 @@ class NotificationService {
           lightColor: "#3b82f6",
         });
       }
+
+      // Only mark as available once permissions are confirmed
+      this.isAvailable = true;
+
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+        }),
+      });
 
       await this.loadSettings();
     } catch (error) {
@@ -131,10 +143,13 @@ class NotificationService {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "Test Notification",
-          body: "Notifications are working!",
+          body: "This is a test notification to verify your settings in Depansa.",
+          sound: true,
+          ...(Platform.OS === "android" && { channelId: "daily-expenses" }),
         },
         trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.IMMEDIATE,
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: 3,
         },
       });
     } catch (error) {
