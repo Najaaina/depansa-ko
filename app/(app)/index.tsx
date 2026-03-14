@@ -35,10 +35,29 @@ export default function HomeScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            Welcome to <Text style={styles.headerBold}>Depansa</Text>
-          </Text>
-          <Text style={styles.headerSub}>You're successfully logged in</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.headerTitle}>
+                Welcome to <Text style={styles.headerBold}>Depansa</Text>
+              </Text>
+              <Text style={styles.headerSub}>
+                You're successfully logged in
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => router.push("/settings")}
+              activeOpacity={0.7}
+              style={{ padding: 4, marginLeft: 12 }}
+            >
+              <Ionicons name="settings-outline" size={24} color="#6c5ce7" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* User card */}

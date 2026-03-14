@@ -21,14 +21,18 @@ export const CURRENCIES: Currency[] = [
 
 const SETTINGS_KEY = "app_settings";
 
+export type SubscriptionPlan = "free" | "premium";
+
 export interface AppSettings {
   currency: string;
   biometricLogin: boolean;
+  subscription: SubscriptionPlan;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   currency: "USD",
   biometricLogin: false,
+  subscription: "free",
 };
 
 class SettingsService {

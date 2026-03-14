@@ -5,13 +5,15 @@ import {
   ScrollView,
   Switch,
   TouchableOpacity,
-  StyleSheet,
   Alert,
 } from "react-native";
-import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
-import { notificationService, type NotificationSettings } from "@/services/notification.service";
+import {
+  notificationService,
+  type NotificationSettings,
+  type NotificationRecurrence,
+} from "@/services/notification.service";
 
 export default function NotificationSettingsScreen() {
   const [settings, setSettings] = useState<NotificationSettings>({
@@ -20,32 +22,34 @@ export default function NotificationSettingsScreen() {
     reminderTime: "20:00",
     dailyExpenseNotification: true,
     goalReminder: true,
+    recurrence: "daily",
+    expenseDays: 7,
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
 
   useEffect(() => {
-    initializeNotifications();
+    const init = async () => {
+      try {
+        await notificationService.initialize();
+        const loaded = await notificationService.loadSettings();
+        setSettings(loaded);
+        setIsAvailable(notificationService.isNotificationsAvailable());
+      } catch (error) {
+        console.error("Error initializing notifications:", error);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+    init();
   }, []);
 
-  const initializeNotifications = async () => {
-    try {
-      await notificationService.initialize();
-      const loadedSettings = await notificationService.loadSettings();
-      setSettings(loadedSettings);
-      setIsAvailable(notificationService.isNotificationsAvailable());
-      setIsInitialized(true);
-    } catch (error) {
-      console.error("Error initializing notifications:", error);
-      setIsInitialized(true);
-    }
-  };
-
-  const updateSetting = async (key: keyof NotificationSettings, value: boolean | string) => {
+  const updateSetting = async (
+    key: keyof NotificationSettings,
+    value: boolean | string | number,
+  ) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    
     try {
       await notificationService.saveSettings(newSettings);
     } catch (error) {
@@ -57,7 +61,7 @@ export default function NotificationSettingsScreen() {
     try {
       await notificationService.scheduleTestNotification();
       Alert.alert("Success", "Test notification sent!");
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to send test notification");
     }
   };
@@ -70,25 +74,37 @@ export default function NotificationSettingsScreen() {
     { label: "9:00 PM", value: "21:00" },
   ];
 
+  const recurrenceOptions: { label: string; value: NotificationRecurrence }[] =
+    [
+      { label: "Daily", value: "daily" },
+      { label: "Weekly", value: "weekly" },
+    ];
+
+  const expenseDaysOptions = [3, 7, 14, 30];
+
   if (!isInitialized) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-gray-50">
+        <Text className="text-gray-400">Loading...</Text>
       </View>
     );
   }
 
   if (!isAvailable) {
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.unavailableSection}>
-          <Ionicons name="notifications-off-outline" size={64} color="#d1d5db" />
-          <Text style={styles.unavailableTitle}>Notifications Not Available</Text>
-          <Text style={styles.unavailableText}>
-            Push notifications require a physical device and the expo-notifications package to be installed and configured.
+      <ScrollView className="flex-1 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-8 mt-16">
+          <Ionicons
+            name="notifications-off-outline"
+            size={64}
+            color="#d1d5db"
+          />
+          <Text className="text-xl font-semibold text-gray-700 mt-4">
+            Notifications Not Available
           </Text>
-          <Text style={styles.unavailableHint}>
-            To enable notifications, install the package and configure native credentials (APNs for iOS, FCM for Android).
+          <Text className="text-sm text-gray-500 text-center mt-2 leading-5">
+            Push notifications require a physical device with expo-notifications
+            configured.
           </Text>
         </View>
       </ScrollView>
@@ -96,20 +112,25 @@ export default function NotificationSettingsScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Push Notifications</Text>
-        <View style={styles.card}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Enable Notifications</Text>
-              <Text style={styles.settingDescription}>
+    <ScrollView className="flex-1 bg-gray-50">
+      {/* Enable */}
+      <View className="px-4 pt-4 pb-2">
+        <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+          Push Notifications
+        </Text>
+        <View className="bg-white rounded-xl px-4 py-4">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1 mr-4">
+              <Text className="text-base font-medium text-gray-800">
+                Enable Notifications
+              </Text>
+              <Text className="text-sm text-gray-500 mt-0.5">
                 Receive push notifications for your finances
               </Text>
             </View>
             <Switch
               value={settings.enabled}
-              onValueChange={(value) => updateSetting("enabled", value)}
+              onValueChange={(v) => updateSetting("enabled", v)}
               trackColor={{ false: "#e5e7eb", true: "#3b82f6" }}
             />
           </View>
@@ -118,49 +139,97 @@ export default function NotificationSettingsScreen() {
 
       {settings.enabled && (
         <>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Daily Summary</Text>
-            <View style={styles.card}>
-              <View style={styles.settingRow}>
-                <View style={styles.settingInfo}>
-                  <Text style={styles.settingLabel}>Daily Expense Summary</Text>
-                  <Text style={styles.settingDescription}>
-                    Get a daily summary of your expenses
+          {/* Recurrence */}
+          <View className="px-4 pt-4 pb-2">
+            <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+              Recurrence
+            </Text>
+            <View className="bg-white rounded-xl px-4 py-4">
+              <View className="flex-row flex-wrap gap-2">
+                {recurrenceOptions.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    className={`px-4 py-2 rounded-full border ${settings.recurrence === opt.value ? "bg-blue-500 border-blue-500" : "bg-white border-gray-200"}`}
+                    onPress={() => updateSetting("recurrence", opt.value)}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${settings.recurrence === opt.value ? "text-white" : "text-gray-600"}`}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+
+          {/* Expense tracking window */}
+          <View className="px-4 pt-4 pb-2">
+            <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">
+              Expense Tracking Window
+            </Text>
+            <Text className="text-sm text-gray-400 mb-2">
+              Number of days to count expenses over
+            </Text>
+            <View className="bg-white rounded-xl px-4 py-4">
+              <View className="flex-row flex-wrap gap-2">
+                {expenseDaysOptions.map((days) => (
+                  <TouchableOpacity
+                    key={days}
+                    className={`px-4 py-2 rounded-full border ${settings.expenseDays === days ? "bg-blue-500 border-blue-500" : "bg-white border-gray-200"}`}
+                    onPress={() => updateSetting("expenseDays", days)}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${settings.expenseDays === days ? "text-white" : "text-gray-600"}`}
+                    >
+                      {days}d
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+
+          {/* Daily summary */}
+          <View className="px-4 pt-4 pb-2">
+            <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+              Daily Summary
+            </Text>
+            <View className="bg-white rounded-xl px-4 py-4">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1 mr-4">
+                  <Text className="text-base font-medium text-gray-800">
+                    Expense Summary
+                  </Text>
+                  <Text className="text-sm text-gray-500 mt-0.5">
+                    Get a summary of your expenses
                   </Text>
                 </View>
                 <Switch
                   value={settings.dailyExpenseNotification}
-                  onValueChange={(value) => updateSetting("dailyExpenseNotification", value)}
+                  onValueChange={(v) =>
+                    updateSetting("dailyExpenseNotification", v)
+                  }
                   trackColor={{ false: "#e5e7eb", true: "#3b82f6" }}
                 />
               </View>
-
               {settings.dailyExpenseNotification && (
                 <>
-                  <View style={styles.divider} />
-                  <View style={styles.settingRow}>
-                    <View style={styles.settingInfo}>
-                      <Text style={styles.settingLabel}>Reminder Time</Text>
-                      <Text style={styles.settingDescription}>
-                        When to receive the daily summary
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.timeOptions}>
+                  <View className="h-px bg-gray-100 my-4" />
+                  <Text className="text-sm font-medium text-gray-800 mb-3">
+                    Reminder Time
+                  </Text>
+                  <View className="flex-row flex-wrap gap-2">
                     {reminderTimes.map((time) => (
                       <TouchableOpacity
                         key={time.value}
-                        style={[
-                          styles.timeOption,
-                          settings.reminderTime === time.value && styles.timeOptionSelected,
-                        ]}
-                        onPress={() => updateSetting("reminderTime", time.value)}
+                        className={`px-4 py-2 rounded-full border ${settings.reminderTime === time.value ? "bg-blue-500 border-blue-500" : "bg-white border-gray-200"}`}
+                        onPress={() =>
+                          updateSetting("reminderTime", time.value)
+                        }
                       >
                         <Text
-                          style={[
-                            styles.timeOptionText,
-                            settings.reminderTime === time.value && styles.timeOptionTextSelected,
-                          ]}
+                          className={`text-sm font-medium ${settings.reminderTime === time.value ? "text-white" : "text-gray-600"}`}
                         >
                           {time.label}
                         </Text>
@@ -172,26 +241,31 @@ export default function NotificationSettingsScreen() {
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Goals</Text>
-            <View style={styles.card}>
-              <View style={styles.settingRow}>
-                <View style={styles.settingInfo}>
-                  <Text style={styles.settingLabel}>Goal Reminders</Text>
-                  <Text style={styles.settingDescription}>
+          {/* Goals */}
+          <View className="px-4 pt-4 pb-2">
+            <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">
+              Goals
+            </Text>
+            <View className="bg-white rounded-xl px-4 py-4">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1 mr-4">
+                  <Text className="text-base font-medium text-gray-800">
+                    Goal Reminders
+                  </Text>
+                  <Text className="text-sm text-gray-500 mt-0.5">
                     Get notified when goals are reached
                   </Text>
                 </View>
                 <Switch
                   value={settings.goalReminder}
-                  onValueChange={(value) => updateSetting("goalReminder", value)}
+                  onValueChange={(v) => updateSetting("goalReminder", v)}
                   trackColor={{ false: "#e5e7eb", true: "#3b82f6" }}
                 />
               </View>
             </View>
           </View>
 
-          <View style={styles.section}>
+          <View className="px-4 pt-4 pb-2">
             <Button
               title="Send Test Notification"
               onPress={testNotification}
@@ -201,128 +275,13 @@ export default function NotificationSettingsScreen() {
         </>
       )}
 
-      <View style={styles.infoSection}>
-        <Ionicons name="information-circle-outline" size={20} color="#6b7280" />
-        <Text style={styles.infoText}>
-          Push notifications require a physical device. They won't work on emulators or simulators.
+      <View className="flex-row items-start px-4 py-4 mt-2 mb-6 gap-2">
+        <Ionicons name="information-circle-outline" size={20} color="#9ca3af" />
+        <Text className="flex-1 text-sm text-gray-400 leading-5">
+          Push notifications require a physical device. They won't work on
+          emulators.
         </Text>
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9fafb",
-  },
-  loadingText: {
-    textAlign: "center",
-    marginTop: 50,
-    color: "#6b7280",
-  },
-  unavailableSection: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 32,
-  },
-  unavailableTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#374151",
-    marginTop: 16,
-  },
-  unavailableText: {
-    fontSize: 14,
-    color: "#6b7280",
-    textAlign: "center",
-    marginTop: 8,
-    lineHeight: 20,
-  },
-  unavailableHint: {
-    fontSize: 12,
-    color: "#9ca3af",
-    textAlign: "center",
-    marginTop: 16,
-    fontStyle: "italic",
-  },
-  section: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#6b7280",
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-  },
-  settingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  settingInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1f2937",
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: "#6b7280",
-    marginTop: 2,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#f3f4f6",
-    marginVertical: 16,
-  },
-  timeOptions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 8,
-  },
-  timeOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#fff",
-  },
-  timeOptionSelected: {
-    backgroundColor: "#3b82f6",
-    borderColor: "#3b82f6",
-  },
-  timeOptionText: {
-    fontSize: 14,
-    color: "#374151",
-  },
-  timeOptionTextSelected: {
-    color: "#fff",
-    fontWeight: "500",
-  },
-  infoSection: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    padding: 16,
-    gap: 8,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#6b7280",
-    lineHeight: 18,
-  },
-});

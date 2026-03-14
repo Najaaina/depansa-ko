@@ -1,11 +1,15 @@
 import { storageService } from "./storage.service";
 
+export type NotificationRecurrence = "daily" | "weekly";
+
 export interface NotificationSettings {
   enabled: boolean;
   dailyReminder: boolean;
   reminderTime: string;
   dailyExpenseNotification: boolean;
   goalReminder: boolean;
+  recurrence: NotificationRecurrence;
+  expenseDays: number;
 }
 
 const DEFAULT_SETTINGS: NotificationSettings = {
@@ -14,6 +18,8 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   reminderTime: "20:00",
   dailyExpenseNotification: true,
   goalReminder: true,
+  recurrence: "daily",
+  expenseDays: 7,
 };
 
 const SETTINGS_KEY = "notification_settings";

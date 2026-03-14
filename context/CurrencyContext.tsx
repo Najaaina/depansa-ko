@@ -1,5 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { settingsService, CURRENCIES, type Currency } from "@/services/settings.service";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  settingsService,
+  CURRENCIES,
+  type Currency,
+} from "@/services/settings.service";
 
 interface CurrencyContextType {
   currency: Currency;
@@ -7,9 +17,13 @@ interface CurrencyContextType {
   formatAmount: (amount: number) => string;
 }
 
-const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
+const CurrencyContext = createContext<CurrencyContextType | undefined>(
+  undefined,
+);
 
-export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [currency, setCurrencyState] = useState<Currency>(CURRENCIES[0]);
 
   useEffect(() => {
@@ -24,10 +38,11 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const formatAmount = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency.code,
+    const formatted = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(amount);
+    return `${currency.symbol}${formatted}`;
   };
 
   return (
@@ -39,6 +54,7 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
 
 export const useCurrency = (): CurrencyContextType => {
   const context = useContext(CurrencyContext);
-  if (!context) throw new Error("useCurrency must be used within a CurrencyProvider");
+  if (!context)
+    throw new Error("useCurrency must be used within a CurrencyProvider");
   return context;
 };
