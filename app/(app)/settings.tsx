@@ -11,9 +11,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "@/components/ui/button";
 import { notificationService, type NotificationSettings } from "@/services/notification.service";
-import { settingsService, CURRENCIES, type Currency, type AppSettings } from "@/services/settings.service";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface SettingItemProps {
   icon: string;
@@ -41,7 +40,7 @@ function SettingItem({ icon, title, subtitle, onPress, showArrow = true }: Setti
 }
 
 export default function SettingsScreen() {
-  const [currency, setCurrency] = useState<Currency>(CURRENCIES[0]);
+  const { currency } = useCurrency();
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
     enabled: false,
     dailyReminder: true,
@@ -52,23 +51,12 @@ export default function SettingsScreen() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    initializeSettings();
-  }, []);
-
-  const initializeSettings = async () => {
-    try {
-      await settingsService.initialize();
-      setCurrency(settingsService.getCurrency());
-      
-      await notificationService.initialize();
+    notificationService.initialize().then(async () => {
       const notifSettings = await notificationService.loadSettings();
       setNotificationSettings(notifSettings);
-    } catch (error) {
-      console.error("Error initializing settings:", error);
-    } finally {
       setIsInitialized(true);
-    }
-  };
+    });
+  }, []);
 
   if (!isInitialized) {
     return (
