@@ -148,5 +148,28 @@ export class StorageService {
       | "google"
       | null;
   }
+
+  async get(key: string): Promise<string | null> {
+    if (isSecureStoreAvailable()) {
+      try {
+        return await SecureStore.getItemAsync(key);
+      } catch {
+        return null;
+      }
+    }
+    return webStorage.getItem(key);
+  }
+
+  async set(key: string, value: string): Promise<void> {
+    if (isSecureStoreAvailable()) {
+      try {
+        await SecureStore.setItemAsync(key, value);
+      } catch (error) {
+        console.error(`Error saving key "${key}":`, error);
+      }
+    } else {
+      webStorage.setItem(key, value);
+    }
+  }
 }
 export const storageService = new StorageService();
