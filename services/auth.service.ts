@@ -83,6 +83,14 @@ class AuthService {
       body: JSON.stringify({ username, oldPassword, newPassword }),
     });
   }
+
+  async loginWithGoogle(idToken: string): Promise<UserWithApiKey> {
+  const data = await this.fetchApi<AuthResponse>(API_ENDPOINTS.GOOGLE_AUTH, {
+    method: "POST",
+    body: JSON.stringify({ idToken }),
+  });
+  return this.mapAuthResponse(data); // retourne { id, username, apiKey: vrai_jwt }
+  }
 }
 
 export const authService = new AuthService();

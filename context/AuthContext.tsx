@@ -21,7 +21,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
-  loginWithGoogle: (user: { id: string; username: string }) => void;
+  loginWithGoogle: (idToken: string) => Promise<void>; // ← string
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   error: string | null;
@@ -30,9 +30,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Omit<UserWithApiKey, "apiKey"> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,10 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(true);
       const userData = await authService.login(credentials);
       await storageService.saveUserSession(userData);
-      setUser({
-        id: userData.id,
-        username: userData.username,
-      });
+      setUser({ id: userData.id, username: userData.username });
       if (Platform.OS === "web") {
         window.location.reload();
       }
@@ -74,9 +69,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const loginWithGoogle = (userData: { id: string; username: string }) => {
-    setUser(userData);
+  const loginWithGoogle = async (idToken: string) => {
+    setIsLoading(true);
+    try {
+      const userData = await authService.loginWithGoogle(idToken);
+      await storageService.saveUserSession(userData);
+      setUser({ id: userData.id, username: userData.username });
       router.replace("/(app)");
+    } catch (err: any) {
+      setError(err.message || "Google login failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const register = async (userData: RegisterRequest) => {
