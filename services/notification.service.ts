@@ -1,11 +1,15 @@
 import { storageService } from "./storage.service";
 
+export type NotificationRecurrence = "daily" | "weekly";
+
 export interface NotificationSettings {
   enabled: boolean;
   dailyReminder: boolean;
   reminderTime: string;
   dailyExpenseNotification: boolean;
   goalReminder: boolean;
+  recurrence: NotificationRecurrence;
+  expenseDays: number;
 }
 
 const DEFAULT_SETTINGS: NotificationSettings = {
@@ -14,6 +18,8 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   reminderTime: "20:00",
   dailyExpenseNotification: true,
   goalReminder: true,
+  recurrence: "daily",
+  expenseDays: 7,
 };
 
 const SETTINGS_KEY = "notification_settings";
@@ -41,9 +47,9 @@ class NotificationService {
 
   async initialize(): Promise<void> {
     try {
-      this.isAvailable = await loadModules();
-      
-      if (!this.isAvailable) {
+      const modulesLoaded = await loadModules();
+
+      if (!modulesLoaded) {
         console.log("Notifications not available on this platform");
         return;
       }
@@ -74,6 +80,18 @@ class NotificationService {
           lightColor: "#3b82f6",
         });
       }
+
+      // Only mark as available once permissions are confirmed
+      this.isAvailable = true;
+
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+        }),
+      });
 
       await this.loadSettings();
     } catch (error) {
@@ -125,10 +143,13 @@ class NotificationService {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "Test Notification",
-          body: "Notifications are working!",
+          body: "This is a test notification to verify your settings in Depansa.",
+          sound: true,
+          ...(Platform.OS === "android" && { channelId: "daily-expenses" }),
         },
         trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.IMMEDIATE,
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: 3,
         },
       });
     } catch (error) {

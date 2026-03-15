@@ -2,6 +2,7 @@ import "../global.css";
 import { useEffect, useState } from "react";
 import { Slot, router, useSegments } from "expo-router";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 import { View, ActivityIndicator } from "react-native";
 import SplashScreen from "./splash";
 import * as WebBrowser from "expo-web-browser";
@@ -43,7 +44,9 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <CurrencyProvider>
+        <RootLayoutNav />
+      </CurrencyProvider>
     </AuthProvider>
   );
 }

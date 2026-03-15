@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Switch,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  Linking,
-} from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "@/components/ui/button";
-import { notificationService, type NotificationSettings } from "@/services/notification.service";
-import { settingsService, CURRENCIES, type Currency, type AppSettings } from "@/services/settings.service";
+import { useFocusEffect } from "expo-router";
+import { notificationService } from "@/services/notification.service";
+import { settingsService, type SubscriptionPlan } from "@/services/settings.service";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface SettingItemProps {
   icon: string;
@@ -25,88 +17,86 @@ interface SettingItemProps {
 
 function SettingItem({ icon, title, subtitle, onPress, showArrow = true }: SettingItemProps) {
   return (
-    <TouchableOpacity style={styles.settingItem} onPress={onPress}>
-      <View style={styles.settingIcon}>
+    <TouchableOpacity
+      className="flex-row items-center px-4 py-4 border-b border-gray-100"
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center mr-3">
         <Ionicons name={icon as any} size={22} color="#3b82f6" />
       </View>
-      <View style={styles.settingContent}>
-        <Text style={styles.settingTitle}>{title}</Text>
-        {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+      <View className="flex-1">
+        <Text className="text-base font-medium text-gray-800">{title}</Text>
+        {subtitle && <Text className="text-sm text-gray-500 mt-0.5">{subtitle}</Text>}
       </View>
-      {showArrow && (
-        <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-      )}
+      {showArrow && <Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
     </TouchableOpacity>
   );
 }
 
 export default function SettingsScreen() {
-  const [currency, setCurrency] = useState<Currency>(CURRENCIES[0]);
-  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
-    enabled: false,
-    dailyReminder: true,
-    reminderTime: "20:00",
-    dailyExpenseNotification: true,
-    goalReminder: true,
-  });
+  const { currency } = useCurrency();
+  const [subscription, setSubscription] = useState<SubscriptionPlan>("free");
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  useEffect(() => {
-    initializeSettings();
-  }, []);
-
-  const initializeSettings = async () => {
-    try {
-      await settingsService.initialize();
-      setCurrency(settingsService.getCurrency());
-      
-      await notificationService.initialize();
-      const notifSettings = await notificationService.loadSettings();
-      setNotificationSettings(notifSettings);
-    } catch (error) {
-      console.error("Error initializing settings:", error);
-    } finally {
-      setIsInitialized(true);
-    }
-  };
+  useFocusEffect(
+    useCallback(() => {
+      const init = async () => {
+        await settingsService.initialize();
+        setSubscription(settingsService.getSettings().subscription);
+        await notificationService.initialize();
+        const notifSettings = await notificationService.loadSettings();
+        setNotificationsEnabled(notifSettings.enabled);
+        setIsInitialized(true);
+      };
+      init();
+    }, [])
+  );
 
   if (!isInitialized) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-gray-50">
+        <Text className="text-gray-400">Loading...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>General</Text>
-        <View style={styles.card}>
+    <ScrollView className="flex-1 bg-gray-50">
+      <View className="px-4 pt-4 pb-2">
+        <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">General</Text>
+        <View className="bg-white rounded-xl overflow-hidden">
           <SettingItem
             icon="cash-outline"
             title="Currency"
-            subtitle={currency ? `${currency.symbol} ${currency.code}` : "USD"}
+            subtitle={`${currency.symbol} ${currency.code}`}
             onPress={() => router.push("/currency-settings")}
+          />
+          <SettingItem
+            icon="star-outline"
+            title="Subscription"
+            subtitle={subscription === "premium" ? "Premium ✨" : "Free plan"}
+            onPress={() => router.push("/subscription")}
           />
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Notifications</Text>
-        <View style={styles.card}>
+      <View className="px-4 pt-4 pb-2">
+        <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Notifications</Text>
+        <View className="bg-white rounded-xl overflow-hidden">
           <SettingItem
             icon="notifications-outline"
             title="Push Notifications"
-            subtitle="Configure daily reminders"
+            subtitle={notificationsEnabled ? "Enabled" : "Disabled"}
             onPress={() => router.push("/notification-settings")}
           />
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
-        <View style={styles.card}>
+      <View className="px-4 pt-4 pb-2">
+        <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Account</Text>
+        <View className="bg-white rounded-xl overflow-hidden">
           <SettingItem
             icon="wallet-outline"
             title="My Wallets"
@@ -116,9 +106,9 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About</Text>
-        <View style={styles.card}>
+      <View className="px-4 pt-4 pb-8">
+        <Text className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">About</Text>
+        <View className="bg-white rounded-xl overflow-hidden">
           <SettingItem
             icon="information-circle-outline"
             title="App Version"
@@ -131,61 +121,3 @@ export default function SettingsScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f9fafb",
-  },
-  loadingText: {
-    textAlign: "center",
-    marginTop: 50,
-    color: "#6b7280",
-  },
-  section: {
-    padding: 16,
-    paddingBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#6b7280",
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  settingItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f3f4f6",
-  },
-  settingIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "#eff6ff",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  settingContent: {
-    flex: 1,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1f2937",
-  },
-  settingSubtitle: {
-    fontSize: 13,
-    color: "#6b7280",
-    marginTop: 2,
-  },
-});

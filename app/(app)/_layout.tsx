@@ -34,6 +34,14 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="subscription"
+        options={{
+          headerShown: true,
+          headerTitle: "Subscription",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="label/index"
         options={{
           headerShown: true,

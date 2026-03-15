@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -7,32 +7,11 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "@/components/ui/button";
-import { settingsService, CURRENCIES, type Currency, type AppSettings } from "@/services/settings.service";
+import { CURRENCIES, type Currency } from "@/services/settings.service";
+import { useCurrency } from "@/context/CurrencyContext";
 
 export default function CurrencySettingsScreen() {
-  const [settings, setSettings] = useState<AppSettings>({
-    currency: "USD",
-    biometricLogin: false,
-  });
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(CURRENCIES[0]);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    initializeSettings();
-  }, []);
-
-  const initializeSettings = async () => {
-    const loadedSettings = await settingsService.initialize();
-    setSettings(loadedSettings);
-    setSelectedCurrency(CURRENCIES.find(c => c.code === loadedSettings.currency) || CURRENCIES[0]);
-    setIsInitialized(true);
-  };
-
-  const handleCurrencySelect = async (currency: Currency) => {
-    setSelectedCurrency(currency);
-    await settingsService.setSettings({ currency: currency.code });
-  };
+  const { currency: selectedCurrency, setCurrency } = useCurrency();
 
   const formatAmountExample = (currency: Currency): string => {
     return new Intl.NumberFormat("en-US", {
@@ -40,14 +19,6 @@ export default function CurrencySettingsScreen() {
       currency: currency.code,
     }).format(1234.56);
   };
-
-  if (!isInitialized) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
 
   return (
     <ScrollView style={styles.container}>
@@ -65,7 +36,7 @@ export default function CurrencySettingsScreen() {
                 styles.currencyItem,
                 selectedCurrency.code === currency.code && styles.currencyItemSelected,
               ]}
-              onPress={() => handleCurrencySelect(currency)}
+              onPress={() => setCurrency(currency)}
             >
               <View style={styles.currencyLeft}>
                 <Text style={styles.currencySymbol}>{currency.symbol}</Text>

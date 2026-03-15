@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
+import { useCurrency } from "@/context/CurrencyContext";
 import { walletService } from "@/services/wallet.service";
 import type { Wallet } from "@/types/wallet.types";
 import { Ionicons } from "@expo/vector-icons";
@@ -31,6 +32,7 @@ const WALLET_TYPE_ICONS: Record<string, string> = {
 
 export default function WalletListScreen() {
   const { user } = useAuth();
+  const { formatAmount } = useCurrency();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -67,13 +69,6 @@ export default function WalletListScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchWallets();
-  };
-
-  const formatAmount = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
   };
 
   const calculateTotal = (): number => {
