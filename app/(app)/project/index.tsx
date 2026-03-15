@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 
 export default function ProjectListScreen() {
   const { user } = useAuth();
-  const { formatAmount } = useCurrency();
+  const { convertAndFormat: formatAmount } = useCurrency();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

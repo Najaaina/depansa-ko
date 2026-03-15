@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function ProjectStatisticsScreen() {
   const { id: projectId } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
-  const { formatAmount } = useCurrency();
+  const { convertAndFormat: formatAmount } = useCurrency();
   const [stats, setStats] = useState<ProjectStatistics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
