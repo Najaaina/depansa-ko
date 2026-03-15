@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 export default function ProjectDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
-  const { formatAmount } = useCurrency();
+  const { convertAndFormat: formatAmount } = useCurrency();
   const [project, setProject] = useState<Project | null>(null);
   const [transactions, setTransactions] = useState<ProjectTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);

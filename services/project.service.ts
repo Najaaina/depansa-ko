@@ -35,13 +35,17 @@ class ProjectService {
     return await response.json();
   }
 
-  private async fetchBinary(endpoint: string): Promise<Blob> {
+  private async fetchBinary(endpoint: string): Promise<string> {
     const apiKey = await storageService.getApiKey();
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: { Authorization: `Bearer ${apiKey}` },
     });
     if (!response.ok) throw { message: `HTTP error! status: ${response.status}`, status: response.status };
-    return await response.blob();
+    const arrayBuffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binary = "";
+    uint8Array.forEach((byte) => { binary += String.fromCharCode(byte); });
+    return btoa(binary);
   }
 
   // Projects
@@ -108,15 +112,15 @@ class ProjectService {
   }
 
   // PDFs
-  async downloadStatisticsPDF(accountId: string, projectId: string): Promise<Blob> {
+  async downloadStatisticsPDF(accountId: string, projectId: string): Promise<string> {
     return await this.fetchBinary(`${PROJECT(accountId, projectId)}/pdf/statistics`);
   }
 
-  async downloadInvoicePDF(accountId: string, projectId: string): Promise<Blob> {
+  async downloadInvoicePDF(accountId: string, projectId: string): Promise<string> {
     return await this.fetchBinary(`${PROJECT(accountId, projectId)}/pdf/invoice`);
   }
 
-  async downloadSummaryPDF(accountId: string, projectId: string): Promise<Blob> {
+  async downloadSummaryPDF(accountId: string, projectId: string): Promise<string> {
     return await this.fetchBinary(`${PROJECT(accountId, projectId)}/pdf/summary`);
   }
 }
