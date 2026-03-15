@@ -107,6 +107,14 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="wallet/[id]/goal/[goalId]"
+        options={{
+          headerShown: true,
+          headerTitle: "Goal Details",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="label/[id]"
         options={{
           headerShown: true,

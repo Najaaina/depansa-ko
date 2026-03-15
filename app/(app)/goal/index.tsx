@@ -64,7 +64,7 @@ export default function GoalListScreen() {
   const renderLabelCard = ({ item }: { item: Goal }) => (
     <TouchableOpacity
       style={[styles.card, { borderLeftColor: item.color || "#3b82f6" }]}
-      onPress={() => router.push(`/goal/${item.id}`)}
+      onPress={() => router.push(`/wallet/${item.walletId}/goal/${item.id}`)}
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardLeft}>
