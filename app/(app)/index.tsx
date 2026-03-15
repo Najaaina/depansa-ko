@@ -158,6 +158,27 @@ export default function HomeScreen() {
               <ChevronRight color="#6c5ce7" />
             </LinearGradient>
           </TouchableOpacity>
+
+          {/* My Projects */}
+          <TouchableOpacity
+            onPress={() => router.push("/project")}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={["#e0e7ff", "#d8d0ff"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.actionCard}
+            >
+              <View style={styles.actionIcon}>
+                <Ionicons name="folder-outline" size={24} color="#4f46e5" />
+              </View>
+              <Text style={[styles.actionLabel, { color: "#4338ca" }]}>
+                My Projects
+              </Text>
+              <ChevronRight color="#4f46e5" />
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
         {/* Sign Out */}

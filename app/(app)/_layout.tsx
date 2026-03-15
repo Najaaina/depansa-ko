@@ -190,6 +190,74 @@ export default function AppLayout() {
           headerBackTitle: "Back",
         }}
       />
+      <Stack.Screen
+        name="project/index"
+        options={{
+          headerShown: true,
+          headerTitle: "My Projects",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="project/create"
+        options={{
+          headerShown: true,
+          headerTitle: "New Project",
+          headerBackTitle: "Back",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="project/[id]"
+        options={{
+          headerShown: true,
+          headerTitle: "Project Details",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="project/[id]/edit"
+        options={{
+          headerShown: true,
+          headerTitle: "Edit Project",
+          headerBackTitle: "Back",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="project/[id]/add-transaction"
+        options={{
+          headerShown: true,
+          headerTitle: "Add Transaction",
+          headerBackTitle: "Back",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="project/[id]/edit-transaction"
+        options={{
+          headerShown: true,
+          headerTitle: "Edit Transaction",
+          headerBackTitle: "Back",
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="project/[id]/statistics"
+        options={{
+          headerShown: true,
+          headerTitle: "Project Statistics",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="project/[id]/pdf"
+        options={{
+          headerShown: true,
+          headerTitle: "Download PDF",
+          headerBackTitle: "Back",
+        }}
+      />
     </Stack>
   );
 }
