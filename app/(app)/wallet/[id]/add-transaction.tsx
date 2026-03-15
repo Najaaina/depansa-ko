@@ -90,10 +90,7 @@ export default function AddTransactionScreen() {
       return;
     }
 
-    // Use default label if none selected (backend requires labels)
-    const transactionLabels = selectedLabels.length > 0 
-      ? selectedLabels.map(id => ({ id }))
-      : [{ id: "03b0d3f9-14f1-47bd-a3c7-a3225ed93b7e" }];
+    const transactionLabels = selectedLabels.map(id => ({ id }));
 
     setIsLoading(true);
     try {
