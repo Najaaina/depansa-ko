@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // export const labelIconsSchema = z.enum(["WORK","SCHOOL","TRANSPORT","HEALTH", "MISC", "FOOD","ENTERTAINEMENT","SHOPPING"]);
 
-export const creationGoalSchema = z
+export const goalFormSchema = z
   .object({
     name: z
       .string()
@@ -22,4 +22,4 @@ export const creationGoalSchema = z
     path: ["endignDate"],
   });
 
-export type CreationGoalFormData = z.infer<typeof creationGoalSchema>;
+export type GoalFormData = z.infer<typeof goalFormSchema>;

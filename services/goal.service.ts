@@ -87,12 +87,13 @@ class GoalService {
   async update(
     accountId: string,
     walletId: string,
-    goal: UpdateGoal,
+    goalId: string,
+    data: UpdateGoal,
   ): Promise<Goal> {
-    const endpoint = `${API_ENDPOINTS.GOALS.replace(":accountId", accountId).replace(":walletId", walletId)}`;
+    const endpoint = `${API_ENDPOINTS.GOALS.replace(":accountId", accountId).replace(":walletId", walletId)}/${goalId}`;
     return await this.fetchApi<Goal>(endpoint, {
       method: "PUT",
-      body: JSON.stringify(goal),
+      body: JSON.stringify(data),
     });
   }
 
