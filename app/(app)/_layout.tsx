@@ -18,6 +18,14 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="statistics"
+        options={{
+          headerShown: true,
+          headerTitle: "Statistics",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="notification-settings"
         options={{
           headerShown: true,

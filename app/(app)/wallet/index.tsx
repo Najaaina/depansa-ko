@@ -131,6 +131,12 @@ export default function WalletListScreen() {
           onPress={() => router.push("/wallet/create")}
           className="flex-1"
         />
+        <Button
+          title="Statistics"
+          onPress={() => router.push("/statistics")}
+          variant="outline"
+          className="flex-1"
+        />
       </View>
     </View>
   );
