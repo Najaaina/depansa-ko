@@ -116,6 +116,18 @@ class TransactionService {
     });
   }
 
+  async getOne(
+    accountId: string,
+    walletId: string,
+    transactionId: string,
+  ): Promise<Transaction> {
+    const endpoint = `${API_ENDPOINTS.WALLET_TRANSACTIONS.replace(
+      ":accountId",
+      accountId,
+    ).replace(":walletId", walletId)}/${transactionId}`;
+    return await this.fetchApi<Transaction>(endpoint);
+  }
+
   async update(
     accountId: string,
     walletId: string,

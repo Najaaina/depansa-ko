@@ -37,16 +37,27 @@ export default function EditTransactionScreen() {
 
   const loadData = async () => {
     if (!user?.id || !walletId || !transactionId) return;
-    
+
     try {
-      const labelsResponse = await labelService.getAll(user.id);
+      const [labelsResponse, transaction] = await Promise.all([
+        labelService.getAll(user.id),
+        transactionService.getOne(user.id, walletId, transactionId),
+      ]);
+
       if (Array.isArray(labelsResponse)) {
         setLabels(labelsResponse);
       } else if (labelsResponse?.values) {
         setLabels(labelsResponse.values);
       }
+
+      // Pre-populate fields with existing transaction data
+      setAmount(String(transaction.amount));
+      setDescription(transaction.description || "");
+      setType(transaction.type);
+      setDate(transaction.date.split("T")[0]);
+      setSelectedLabels(transaction.labels?.map((l: any) => l.id) ?? []);
     } catch (error) {
-      console.error("Error loading labels:", error);
+      console.error("Error loading data:", error);
     } finally {
       setIsLoadingLabels(false);
     }
@@ -74,9 +85,7 @@ export default function EditTransactionScreen() {
 
     setIsLoading(true);
     try {
-      const transactionLabels = selectedLabels.length > 0 
-        ? selectedLabels.map(id => ({ id }))
-        : [{ id: "03b0d3f9-14f1-47bd-a3c7-a3225ed93b7e" }];
+      const transactionLabels = selectedLabels.map(id => ({ id }));
       
       await transactionService.update(user.id, walletId, {
         id: transactionId,
