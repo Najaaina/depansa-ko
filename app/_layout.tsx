@@ -6,6 +6,7 @@ import { CurrencyProvider } from "@/context/CurrencyContext";
 import { View, ActivityIndicator } from "react-native";
 import SplashScreen from "./splash";
 import * as WebBrowser from "expo-web-browser";
+import * as Notifications from "expo-notifications";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -13,6 +14,17 @@ function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
   const [splashDone, setSplashDone] = useState(false);
+
+  // Redirect to goal when tapping a goal deadline notification
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      if (data?.type === "goal_deadline" && data?.goalId) {
+        router.push(`/goal`);
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   // Navigation — se déclenche quand splash ET auth sont prêts
   useEffect(() => {
