@@ -12,6 +12,7 @@ import { transactionService } from "@/services/transaction.service";
 import type { Transaction } from "@/types/transaction.types";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
+import { useCurrency } from "@/context/CurrencyContext";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -28,6 +29,7 @@ export default function TransactionCalendarScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { convertAndFormat } = useCurrency();
 
   const fetchTransactions = useCallback(async () => {
     if (!user?.id || !walletId) return;
@@ -94,12 +96,6 @@ export default function TransactionCalendarScreen() {
     };
   };
 
-  const formatAmount = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
 
   const selectedDateTransactions = selectedDate 
     ? getTransactionsForDate(parseInt(selectedDate)) 
@@ -139,7 +135,7 @@ export default function TransactionCalendarScreen() {
         ))}
         
         {days.map((day, index) => {
-          const isSelected = day && selectedDate === String(day);
+          const isSelected = day !== null && selectedDate === String(day);
           const dayTransactions = day ? getTransactionsForDate(day) : [];
           const hasTransactions = dayTransactions.length > 0;
           const totals = day ? getTotalForDate(day) : { income: 0, expense: 0 };
@@ -242,7 +238,7 @@ export default function TransactionCalendarScreen() {
                   ]}
                 >
                   {transaction.type === "IN" ? "+" : "-"}
-                  {formatAmount(transaction.amount)}
+                  {convertAndFormat(transaction.amount)}
                 </Text>
               </TouchableOpacity>
             ))
