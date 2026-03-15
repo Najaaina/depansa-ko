@@ -74,6 +74,22 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="goal/index"
+        options={{
+          headerShown: true,
+          headerTitle: "My Goals",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="goal/create"
+        options={{
+          headerShown: true,
+          headerTitle: "Create Goal",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/create"
         options={{
           headerShown: true,

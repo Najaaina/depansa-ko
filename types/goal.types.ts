@@ -1,7 +1,7 @@
 export interface CreationGoal {
   accountId: string;
   name: string;
-  amount: 0;
+  amount: number;
   walletId: string;
   startingDate: string;
   endingDate: string;
@@ -17,7 +17,7 @@ export interface UpdateGoal extends Goal {
   accountId: string;
 }
 
-export type GOAL_TYPE_ICONS = "STAR" | "HEART" | "CASH";
+export type GoalIcon = "STAR" | "HEART" | "CASH";
 
 export interface GetAllGoalResponse {
   values: Goal[];

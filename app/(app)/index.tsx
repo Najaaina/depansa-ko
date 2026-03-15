@@ -137,6 +137,27 @@ export default function HomeScreen() {
               <ChevronRight color="#6c5ce7" />
             </LinearGradient>
           </TouchableOpacity>
+
+          {/* My Goals */}
+          <TouchableOpacity
+            onPress={() => router.push("/goal")}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={["#f2e8f8", "#f5e2ea"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.actionCard}
+            >
+              <View style={styles.actionIcon}>
+                <Ionicons name="trending-up" size={24} color="#d023e0" />
+              </View>
+              <Text style={[styles.actionLabel, { color: "#a74fcf" }]}>
+                My Goals
+              </Text>
+              <ChevronRight color="#6c5ce7" />
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
         {/* Sign Out */}

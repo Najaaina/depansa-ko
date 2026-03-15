@@ -21,7 +21,7 @@ const GOAL_TYPE_ICONS: Record<string, string> = {
   CASH: "cash-outline",
 };
 
-export default function LabelListScreen() {
+export default function GoalListScreen() {
   const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +71,7 @@ export default function LabelListScreen() {
           <View
             style={[
               styles.iconContainer,
-              { backgroundColor: item.color || "#9846e591" },
+              { backgroundColor: item.color || "#3b82f6" },
             ]}
           >
             <Ionicons
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   totalCard: {
-    backgroundColor: "#9846e591",
+    backgroundColor: "#6366F1",
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,

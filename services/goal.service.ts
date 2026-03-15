@@ -76,12 +76,8 @@ class GoalService {
     return await this.fetchApi<Goal>(endpoint);
   }
 
-  async create(
-    accountId: string,
-    walletId: string,
-    goal: CreationGoal,
-  ): Promise<CreationGoal> {
-    const endpoint = `${API_ENDPOINTS.GOALS.replace(":accountId", accountId).replace(":walletId", walletId)}`;
+  async create(goal: CreationGoal): Promise<CreationGoal> {
+    const endpoint = `${API_ENDPOINTS.GOALS.replace(":accountId", goal.accountId).replace(":walletId", goal.walletId)}`;
     return await this.fetchApi<Goal>(endpoint, {
       method: "POST",
       body: JSON.stringify(goal),
