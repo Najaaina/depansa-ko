@@ -74,6 +74,22 @@ export default function AppLayout() {
         }}
       />
       <Stack.Screen
+        name="goal/index"
+        options={{
+          headerShown: true,
+          headerTitle: "My Goals",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="goal/create"
+        options={{
+          headerShown: true,
+          headerTitle: "Create Goal",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
         name="wallet/create"
         options={{
           headerShown: true,
@@ -87,6 +103,22 @@ export default function AppLayout() {
         options={{
           headerShown: true,
           headerTitle: "Wallet Details",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="wallet/[id]/goal/[goalId]"
+        options={{
+          headerShown: true,
+          headerTitle: "Goal Details",
+          headerBackTitle: "Back",
+        }}
+      />
+      <Stack.Screen
+        name="wallet/[id]/goal/[goalId]/edit"
+        options={{
+          headerShown: true,
+          headerTitle: "Update Goal",
           headerBackTitle: "Back",
         }}
       />
