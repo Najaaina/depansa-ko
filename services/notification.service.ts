@@ -192,6 +192,34 @@ class NotificationService {
       console.error("Error canceling notifications:", error);
     }
   }
+
+  async scheduleGoalDeadlineNotification(goalId: string, goalName: string, endingDate: string): Promise<void> {
+    if (!this.isAvailable) return;
+
+    const deadline = new Date(endingDate);
+    const now = new Date();
+    const secondsUntilDeadline = Math.floor((deadline.getTime() - now.getTime()) / 1000);
+
+    if (secondsUntilDeadline <= 0) return;
+
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Goal Deadline Reached 🎯",
+          body: `Your goal "${goalName}" has reached its deadline.`,
+          data: { type: "goal_deadline", goalId },
+          sound: true,
+          ...(Platform.OS === "android" && { channelId: "daily-expenses" }),
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: secondsUntilDeadline,
+        },
+      });
+    } catch (error) {
+      console.error("Error scheduling goal notification:", error);
+    }
+  }
 }
 
 import { Platform } from "react-native";

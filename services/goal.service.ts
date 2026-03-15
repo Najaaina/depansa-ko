@@ -19,7 +19,7 @@ class GoalService {
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
-        ...options.headers,
+        ...(options.headers as Record<string, string>),
       };
 
       if (apiKey) {
@@ -76,7 +76,7 @@ class GoalService {
     return await this.fetchApi<Goal>(endpoint);
   }
 
-  async create(goal: CreationGoal): Promise<CreationGoal> {
+  async create(goal: CreationGoal): Promise<Goal> {
     const endpoint = `${API_ENDPOINTS.GOALS.replace(":accountId", goal.accountId).replace(":walletId", goal.walletId)}`;
     return await this.fetchApi<Goal>(endpoint, {
       method: "POST",

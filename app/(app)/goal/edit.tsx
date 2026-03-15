@@ -8,14 +8,14 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
 import { Ionicons } from "@expo/vector-icons";
-import { CreationGoal, GoalIcon } from "@/types/goal.types";
-import { cn } from "../../../lib/utils";
+import { Goal, GoalIcon, UpdateGoal } from "@/types/goal.types";
+import { cn } from "@/lib/utils";
 import { goalFormSchema } from "@/schemas/goal.schemas";
 import { goalService } from "@/services/goal.service";
 import { notificationService } from "@/services/notification.service";
@@ -39,7 +39,8 @@ const COLORS = [
   "#6366f1",
 ];
 
-export default function CreateLabelScreen() {
+export default function EditGoalScreen() {
+  const { id, goalId } = useLocalSearchParams<{ id: string; goalId: string }>();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<GoalIcon>("CASH");
@@ -48,6 +49,7 @@ export default function CreateLabelScreen() {
   const [selectedWallet, setSelectedWallet] = useState<Wallet>(wallets[0]);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [goal, setGoal] = useState<Goal | null>(null);
   const [amount, setAmount] = useState("");
   const defaultSartDate = new Date();
   const defaultEndDate = new Date(defaultSartDate.getDate() + 1);
@@ -69,25 +71,28 @@ export default function CreateLabelScreen() {
     },
   });
 
-  const fetchWallets = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     if (!user?.id) {
       console.log("No user ID found");
       return;
     }
 
     try {
-      console.log("Fetching wallets for user:", user.id);
-      const response = await walletService.getAll(user.id);
-      console.log("Wallets response:", response);
-      setWallets(response.values);
-      setSelectedWallet(response.values[0]);
-      if (response.values.length < 1) {
+      console.log(`Fetching wallets and goal ${goalId} for user: ${user.id}`);
+      const goalData = await goalService.getOne(user.id, id, goalId);
+      console.log("Goal response:", goalData);
+      const walletData = await walletService.getAll(user.id);
+      console.log("Wallets response:", walletData);
+      setWallets(walletData.values);
+      setGoal(goalData);
+      setSelectedWallet(walletData.values[0]);
+      if (walletData.values.length < 1) {
         Alert.alert("No Wallet", "Please create a new wallet first");
         router.push("/");
       }
     } catch (error: any) {
-      console.error("Error fetching wallets:", error);
-      Alert.alert("Error", error.message || "Failed to load wallets");
+      console.error("Error fetching data:", error);
+      Alert.alert("Error", error.message || "Failed to load data");
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -96,12 +101,12 @@ export default function CreateLabelScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused, fetching wallets...");
-      fetchWallets();
-    }, [fetchWallets]),
+      console.log("Screen focused, fetching data...");
+      fetchData();
+    }, [fetchData]),
   );
 
-  const handleCreateGoal = async () => {
+  const handleUpdateGoal = async () => {
     if (!validateForm()) {
       Alert.alert("Validation Error", "Please fill in all fields correctly");
       return;
@@ -120,7 +125,8 @@ export default function CreateLabelScreen() {
       setIsLoading(true);
       const values = getValues();
 
-      const goalData: CreationGoal = {
+      const goalData: UpdateGoal = {
+        id: goalId,
         accountId: user.id,
         walletId: selectedWallet.id,
         name: values.name || "",
@@ -135,23 +141,23 @@ export default function CreateLabelScreen() {
         color: selectedColor,
       };
 
-      const goal = await goalService.create(goalData);
+      await goalService.update(user.id, id, goalId, goalData);
 
       await notificationService.scheduleGoalDeadlineNotification(
-        goal.id,
+        goalId,
         goalData.name,
         goalData.endingDate
       );
 
-      Alert.alert("Success", "Goal created successfully!", [
-        { text: "OK", onPress: () => router.replace("/goal") },
+      Alert.alert("Success", "Goal updated successfully!", [
+        { text: "OK", onPress: () => router.replace(`/goal`) },
       ]);
     } catch (error: any) {
-      console.error("Error creating a goal:", error);
+      console.error("Error updating goal:", error);
       if (error.status === 401 || error.status === 403) {
         Alert.alert("Error", "Session expired. Please login again.");
       } else {
-        Alert.alert("Error", error || "Failed to create goal");
+        Alert.alert("Error", error || "Failed to update goal");
       }
     } finally {
       setIsLoading(false);
@@ -185,10 +191,10 @@ export default function CreateLabelScreen() {
           <Text
             className={cn("text-3xl", "font-bold", "text-gray-800", "mb-2")}
           >
-            Create Goal
+            Update Goal
           </Text>
           <Text className={cn("text-base", "text-gray-500")}>
-            Add a new goal to track your transactions
+            Update information about your Goal
           </Text>
         </View>
 
@@ -340,8 +346,8 @@ export default function CreateLabelScreen() {
               className="flex-1"
             />
             <Button
-              title="Create Goal"
-              onPress={handleCreateGoal}
+              title="Update Goal"
+              onPress={handleUpdateGoal}
               loading={isLoading}
               disabled={!isFormValid()}
               className="flex-1"
