@@ -28,7 +28,7 @@ interface LabelStats {
 
 export default function GlobalStatisticsScreen() {
   const { user } = useAuth();
-  const { formatAmount } = useCurrency();
+  const { convertAndFormat } = useCurrency();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [period, setPeriod] = useState<PeriodFilter>("month");
@@ -150,7 +150,7 @@ export default function GlobalStatisticsScreen() {
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Total Balance Across All Wallets</Text>
         <Text style={[styles.balanceAmount, { color: totalWalletBalance >= 0 ? "#1f2937" : "#ef4444" }]}>
-          {formatAmount(totalWalletBalance)}
+          {convertAndFormat(totalWalletBalance)}
         </Text>
         <Text style={styles.walletCount}>{wallets.length} wallet{wallets.length !== 1 ? "s" : ""}</Text>
       </View>
@@ -160,18 +160,18 @@ export default function GlobalStatisticsScreen() {
         <View style={styles.summaryRow}>
           <View style={styles.summaryItem}>
             <Text style={styles.summaryLabel}>Income</Text>
-            <Text style={[styles.summaryValue, { color: "#10b981" }]}>+{formatAmount(totalIncome)}</Text>
+            <Text style={[styles.summaryValue, { color: "#10b981" }]}>+{convertAndFormat(totalIncome)}</Text>
           </View>
           <View style={styles.summaryItem}>
             <Text style={styles.summaryLabel}>Expense</Text>
-            <Text style={[styles.summaryValue, { color: "#ef4444" }]}>-{formatAmount(totalExpense)}</Text>
+            <Text style={[styles.summaryValue, { color: "#ef4444" }]}>-{convertAndFormat(totalExpense)}</Text>
           </View>
         </View>
         <View style={styles.divider} />
         <View style={styles.netRow}>
           <Text style={styles.netLabel}>Net for period</Text>
           <Text style={[styles.netValue, { color: netBalance >= 0 ? "#10b981" : "#ef4444" }]}>
-            {netBalance >= 0 ? "+" : ""}{formatAmount(netBalance)}
+            {netBalance >= 0 ? "+" : ""}{convertAndFormat(netBalance)}
           </Text>
         </View>
       </View>
@@ -182,12 +182,12 @@ export default function GlobalStatisticsScreen() {
         <View style={styles.averageRow}>
           <View style={styles.averageItem}>
             <Ionicons name="arrow-down" size={16} color="#10b981" />
-            <Text style={styles.averageValue}>{formatAmount(totalIncome / days)}</Text>
+            <Text style={styles.averageValue}>{convertAndFormat(totalIncome / days)}</Text>
             <Text style={styles.averageLabel}>income/day</Text>
           </View>
           <View style={styles.averageItem}>
             <Ionicons name="arrow-up" size={16} color="#ef4444" />
-            <Text style={styles.averageValue}>{formatAmount(totalExpense / days)}</Text>
+            <Text style={styles.averageValue}>{convertAndFormat(totalExpense / days)}</Text>
             <Text style={styles.averageLabel}>expense/day</Text>
           </View>
         </View>
@@ -205,8 +205,8 @@ export default function GlobalStatisticsScreen() {
                 <Text style={styles.walletTransactionCount}>{count} transaction{count !== 1 ? "s" : ""}</Text>
               </View>
               <View style={styles.walletAmounts}>
-                {income > 0 && <Text style={styles.incomeText}>+{formatAmount(income)}</Text>}
-                {expense > 0 && <Text style={styles.expenseText}>-{formatAmount(expense)}</Text>}
+                {income > 0 && <Text style={styles.incomeText}>+{convertAndFormat(income)}</Text>}
+                {expense > 0 && <Text style={styles.expenseText}>-{convertAndFormat(expense)}</Text>}
               </View>
             </View>
           ))}
@@ -227,7 +227,7 @@ export default function GlobalStatisticsScreen() {
                 <Text style={styles.categoryCount}>({stat.count})</Text>
               </View>
               <View style={styles.categoryValues}>
-                <Text style={styles.categoryAmount}>{formatAmount(stat.total)}</Text>
+                <Text style={styles.categoryAmount}>{convertAndFormat(stat.total)}</Text>
                 <Text style={styles.categoryPercentage}>{stat.percentage.toFixed(1)}%</Text>
               </View>
               <View style={styles.progressBar}>

@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/types/lablel.types";
 import { labelService } from "@/services/label.service";
+import { useCurrency } from "@/context/CurrencyContext";
 
 const LABEL_TYPE_ICONS: Record<string, string> = {
   WORK: "briefcase",
@@ -34,7 +35,8 @@ export default function LablelDetailScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
+  const { convertAndFormat } = useCurrency();
+  
   const fetchData = useCallback(async () => {
     if (!user?.id || !id) return;
 
@@ -121,13 +123,6 @@ export default function LablelDetailScreen() {
     );
   };
 
-  const formatAmount = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
-
   const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US", {
@@ -187,14 +182,14 @@ export default function LablelDetailScreen() {
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Income</Text>
             <Text style={[styles.statValue, { color: "#10b981" }]}>
-              +{formatAmount(totalIncome)}
+              +{convertAndFormat(totalIncome)}
             </Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Expense</Text>
             <Text style={[styles.statValue, { color: "#ef4444" }]}>
-              -{formatAmount(totalExpense)}
+              -{convertAndFormat(totalExpense)}
             </Text>
           </View>
         </View>
@@ -263,7 +258,7 @@ export default function LablelDetailScreen() {
                 ]}
               >
                 {transaction.type === "IN" ? "+" : "-"}
-                {formatAmount(transaction.amount)}
+                {convertAndFormat(transaction.amount)}
               </Text>
             </View>
           ))

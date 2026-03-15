@@ -35,7 +35,7 @@ const WALLET_TYPE_ICONS: Record<string, string> = {
 export default function WalletDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
-  const { formatAmount } = useCurrency();
+  const { convertAndFormat } = useCurrency();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -150,16 +150,16 @@ export default function WalletDetailScreen() {
 
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Current Balance</Text>
-        <Text style={styles.balanceAmount}>{formatAmount(wallet.amount)}</Text>
+        <Text style={styles.balanceAmount}>{convertAndFormat(wallet.amount)}</Text>
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Income</Text>
-            <Text style={[styles.statValue, { color: "#10b981" }]}>+{formatAmount(totalIncome)}</Text>
+            <Text style={[styles.statValue, { color: "#10b981" }]}>+{convertAndFormat(totalIncome)}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Expense</Text>
-            <Text style={[styles.statValue, { color: "#ef4444" }]}>-{formatAmount(totalExpense)}</Text>
+            <Text style={[styles.statValue, { color: "#ef4444" }]}>-{convertAndFormat(totalExpense)}</Text>
           </View>
         </View>
         {wallet.walletAutomaticIncome?.type !== "NOT_SPECIFIED" && (
@@ -167,7 +167,7 @@ export default function WalletDetailScreen() {
             <Ionicons name="repeat-outline" size={16} color="#10b981" />
             <View style={styles.autoIncomeContent}>
               <Text style={styles.autoIncomeLabel}>Automatic Income</Text>
-              <Text style={styles.autoIncomeAmount}>{formatAmount(wallet.walletAutomaticIncome.amount)} / month</Text>
+              <Text style={styles.autoIncomeAmount}>{convertAndFormat(wallet.walletAutomaticIncome.amount)} / month</Text>
             </View>
           </View>
         )}
@@ -242,7 +242,7 @@ export default function WalletDetailScreen() {
                 </View>
               </View>
               <Text style={[styles.transactionAmount, { color: transaction.type === "IN" ? "#10b981" : "#ef4444" }]}>
-                {transaction.type === "IN" ? "+" : "-"}{formatAmount(transaction.amount)}
+                {transaction.type === "IN" ? "+" : "-"}{convertAndFormat(transaction.amount)}
               </Text>
             </TouchableOpacity>
           ))

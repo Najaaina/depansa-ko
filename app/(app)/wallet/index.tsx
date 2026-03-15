@@ -32,7 +32,7 @@ const WALLET_TYPE_ICONS: Record<string, string> = {
 
 export default function WalletListScreen() {
   const { user } = useAuth();
-  const { formatAmount } = useCurrency();
+  const { convertAndFormat } = useCurrency();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -99,7 +99,7 @@ export default function WalletListScreen() {
           </View>
         </View>
         <View style={styles.cardRight}>
-          <Text style={styles.walletAmount}>{formatAmount(item.amount)}</Text>
+          <Text style={styles.walletAmount}>{convertAndFormat(item.amount)}</Text>
           {item.walletAutomaticIncome?.type !== "NOT_SPECIFIED" && (
             <View style={styles.autoIncomeBadge}>
               <Ionicons name="repeat-outline" size={12} color="#10b981" />
@@ -120,7 +120,7 @@ export default function WalletListScreen() {
     <View style={styles.header}>
       <View style={styles.totalCard}>
         <Text style={styles.totalLabel}>Total Balance</Text>
-        <Text style={styles.totalAmount}>{formatAmount(calculateTotal())}</Text>
+        <Text style={styles.totalAmount}>{convertAndFormat(calculateTotal())}</Text>
         <Text style={styles.walletCount}>
           {wallets.length} wallet{wallets.length !== 1 ? "s" : ""}
         </Text>
