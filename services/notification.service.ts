@@ -197,6 +197,8 @@ class NotificationService {
     if (!this.isAvailable) return;
 
     const deadline = new Date(endingDate);
+    deadline.setHours(23, 59, 0, 0);
+
     const now = new Date();
     const secondsUntilDeadline = Math.floor((deadline.getTime() - now.getTime()) / 1000);
 
