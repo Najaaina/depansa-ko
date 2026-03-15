@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { projectService } from "@/services/project.service";
 import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system/next";
+import * as Sharing from "expo-sharing";
 
 type PdfType = "statistics" | "invoice" | "summary";
 
@@ -42,15 +43,8 @@ const buildFilename = (projectName: string, type: PdfType): string => {
   const slug = slugify(projectName);
   const date = new Date().toISOString().split("T")[0];
   const base = `${slug}-${type}-${date}`;
-
-  // Find a unique suffix by checking existing files in cache
-  let counter = 1;
-  let filename = `${base}.pdf`;
-  while (new FileSystem.File(FileSystem.Paths.cache, filename).exists) {
-    filename = `${base}-${counter}.pdf`;
-    counter++;
-  }
-  return filename;
+  const suffix = Date.now().toString().slice(-4);
+  return `${base}-${suffix}.pdf`;
 };
 
 export default function ProjectPdfScreen() {
@@ -86,9 +80,25 @@ export default function ProjectPdfScreen() {
 
       const filename = buildFilename(projectName, type);
       const file = new FileSystem.File(FileSystem.Paths.cache, filename);
-      await file.write(base64);
 
-      Alert.alert("Downloaded", `Saved as ${filename}`);
+      const binaryString = atob(base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      await file.write(bytes);
+
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        Alert.alert("Error", "Sharing is not available on this device.");
+        return;
+      }
+
+      await Sharing.shareAsync(file.uri, {
+        mimeType: "application/pdf",
+        UTI: "com.adobe.pdf",
+      });
+
     } catch (error: any) {
       Alert.alert("Error", error.message || `Failed to download ${type} PDF`);
     } finally {
