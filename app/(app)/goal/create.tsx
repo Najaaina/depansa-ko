@@ -12,6 +12,7 @@ import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { Input } from "@/components/ui/Input";
+import { DatePickerInput } from "@/components/ui/DatePickerInput";
 import { Button } from "@/components/ui/button";
 import { Ionicons } from "@expo/vector-icons";
 import { CreationGoal, GoalIcon } from "@/types/goal.types";
@@ -214,24 +215,27 @@ export default function CreateLabelScreen() {
             keyboardType="decimal-pad"
           />
 
-          <Input
+          <DatePickerInput
             label="Starting Date"
-            placeholder="YYYY-MM-DD"
             value={fields.startingDate?.value || ""}
-            onChangeText={(value) => setFieldValue("startingDate", value)}
-            onBlur={() => setFieldTouched("startingDate")}
+            onChange={(value) => {
+              setFieldValue("startingDate", value);
+              setFieldTouched("startingDate");
+            }}
             error={fields.startingDate?.error}
             touched={fields.startingDate?.touched}
           />
 
-          <Input
+          <DatePickerInput
             label="Ending Date"
-            placeholder="YYYY-MM-DD"
             value={fields.endingDate?.value || ""}
-            onChangeText={(value) => setFieldValue("endingDate", value)}
-            onBlur={() => setFieldTouched("endingDate")}
+            onChange={(value) => {
+              setFieldValue("endingDate", value);
+              setFieldTouched("endingDate");
+            }}
             error={fields.endingDate?.error}
             touched={fields.endingDate?.touched}
+            minimumDate={fields.startingDate?.value ? new Date(fields.startingDate.value) : undefined}
           />
 
           <View className="mb-5">

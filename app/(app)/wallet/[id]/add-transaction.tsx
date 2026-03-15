@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { transactionService } from "@/services/transaction.service";
 import { labelService } from "@/services/label.service";
 import { Input } from "@/components/ui/Input";
+import { DatePickerInput } from "@/components/ui/DatePickerInput";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toggle } from "@/components/ui/toggle";
@@ -25,7 +26,6 @@ export default function AddTransactionScreen() {
   const [labels, setLabels] = useState<Label[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingLabels, setIsLoadingLabels] = useState(true);
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -56,23 +56,6 @@ export default function AddTransactionScreen() {
         ? prev.filter(id => id !== labelId)
         : [...prev, labelId]
     );
-  };
-
-  const handleDateChange = (days: number) => {
-    const newDate = new Date();
-    newDate.setDate(newDate.getDate() + days);
-    setDate(newDate.toISOString().split("T")[0]);
-    setShowDatePicker(false);
-  };
-
-  const formatDisplayDate = (dateStr: string): string => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { 
-      weekday: "short", 
-      year: "numeric", 
-      month: "short", 
-      day: "numeric" 
-    });
   };
 
   const handleSubmit = async () => {
@@ -176,30 +159,12 @@ export default function AddTransactionScreen() {
           placeholder="Enter description"
         />
 
-        <Text style={styles.label}>Date</Text>
-        <TouchableOpacity 
-          style={styles.dateButton}
-          onPress={() => setShowDatePicker(!showDatePicker)}
-        >
-          <Text style={styles.dateText}>{formatDisplayDate(date)}</Text>
-        </TouchableOpacity>
-
-        {showDatePicker && (
-          <View style={styles.datePickerContainer}>
-            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(0)}>
-              <Text style={styles.dateOptionText}>Today</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(-1)}>
-              <Text style={styles.dateOptionText}>Yesterday</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(-7)}>
-              <Text style={styles.dateOptionText}>Last Week</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dateOption} onPress={() => handleDateChange(-30)}>
-              <Text style={styles.dateOptionText}>Last Month</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        <DatePickerInput
+          label="Date"
+          value={date}
+          onChange={setDate}
+          maximumDate={new Date()}
+        />
 
         <Text style={styles.label}>Labels (optional)</Text>
         {isLoadingLabels ? (
@@ -276,32 +241,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#9ca3af",
     marginTop: 4,
-  },
-  dateButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
-  },
-  dateText: {
-    fontSize: 16,
-    color: "#374151",
-  },
-  datePickerContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 8,
-    overflow: "hidden",
-  },
-  dateOption: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f3f4f6",
-  },
-  dateOptionText: {
-    fontSize: 14,
-    color: "#374151",
   },
 });
